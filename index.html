@@ -28,8 +28,7 @@
   }
 
   .screen {
-    max-width: 430px;
-    margin: 0 auto;
+    width: 100%;
     min-height: 100vh;
     background: var(--surface);
     display: flex;
@@ -222,11 +221,10 @@
   /* ---- sticky cart footer ---- */
   .cart-footer {
     position: fixed;
-    left: 50%;
+    left: 0;
+    right: 0;
     bottom: 0;
-    transform: translateX(-50%);
     width: 100%;
-    max-width: 430px;
     background: var(--surface);
     border-top: 1px solid var(--line);
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));

@@ -1,0 +1,379 @@
+<title>2連単 高配当順</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --line: #e6e4df;
+    --ink: #24231f;
+    --ink-soft: #6f6d66;
+    --badge: #2c2c28;
+    --badge-highlight: #e8503f;
+    --badge-gold: #e0a83a;
+    --badge-green: #3f9463;
+    --row-hi: #eaf6ee;
+    --odds-hi: #d64a3a;
+    --tab-active: #201f1c;
+    --accent: #ef7a1c;
+    --accent-ink: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .screen {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ---- top bet-type tabs ---- */
+  .bettype-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--line);
+  }
+  .bettype-tabs button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 13px 4px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .bettype-tabs button.active {
+    color: var(--tab-active);
+    border-bottom-color: var(--tab-active);
+  }
+
+  /* ---- sort sub-tabs ---- */
+  .sort-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 10px 10px 6px;
+  }
+  .sort-tabs button {
+    flex: 1;
+    border: none;
+    border-radius: 20px;
+    padding: 9px 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .sort-tabs button.active {
+    background: var(--tab-active);
+    color: var(--surface);
+  }
+
+  /* ---- filter row ---- */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px 10px;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--surface);
+  }
+  .filter-chip .check {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    background: var(--badge-green);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .filter-chip .check svg { width: 10px; height: 10px; }
+  .updated-at {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  /* ---- odds list ---- */
+  .list-wrap {
+    flex: 1;
+    padding: 0 12px 100px;
+    overflow-y: auto;
+  }
+  .odds-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 14px;
+  }
+  .odds-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 2px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .odds-row.hi { background: var(--row-hi); margin: 0 -6px; padding-left: 8px; padding-right: 8px; border-radius: 4px; }
+  .idx {
+    width: 20px;
+    flex-shrink: 0;
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    text-align: right;
+  }
+  .horse {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 5px;
+    border-radius: 5px;
+    background: var(--badge);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .horse.gold { background: var(--badge-gold); color: #2b2200; }
+  .horse.green { background: var(--badge-green); }
+  .horse.red { background: var(--badge-highlight); }
+  .arrow {
+    color: var(--ink-soft);
+    font-size: 12px;
+  }
+  .odds-val {
+    margin-left: auto;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+  .odds-val.hot { color: var(--odds-hi); }
+
+  /* ---- pagination ---- */
+  .list-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 2px;
+  }
+  .list-actions button {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 6px 0 4px;
+  }
+  .pagination button {
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 17px;
+    padding: 4px 6px;
+  }
+  .page-select {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 22px 6px 12px;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+  }
+
+  .refresh-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 0 16px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+  .refresh-link svg { width: 15px; height: 15px; }
+
+  /* ---- sticky cart footer ---- */
+  .cart-footer {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+    z-index: 10;
+  }
+  .cart-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+  }
+  .cart-info .count {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .cart-info .range {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+  }
+  .cart-add-btn {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 13px 26px;
+  }
+</style>
+
+<div class="screen">
+  <nav class="bettype-tabs">
+    <button>3連単</button>
+    <button>3連複</button>
+    <button class="active">2連単</button>
+    <button>2連複</button>
+    <button>単勝</button>
+    <button>ワイド</button>
+  </nav>
+
+  <nav class="sort-tabs">
+    <button>人気順</button>
+    <button>オッズ表</button>
+    <button class="active">高配当順</button>
+    <button>選手から検索</button>
+  </nav>
+
+  <div class="filter-row">
+    <span class="filter-chip">
+      <span class="check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      オッズで絞る
+    </span>
+    <span class="updated-at">15:15現在</span>
+  </div>
+
+  <div class="list-wrap" id="listWrap">
+    <div class="odds-grid" id="oddsGrid"></div>
+
+    <div class="list-actions">
+      <button type="button">クリア</button>
+      <button type="button">ページ内全選択</button>
+    </div>
+
+    <div class="pagination">
+      <button aria-label="最初のページ">«</button>
+      <button aria-label="前のページ">‹</button>
+      <select class="page-select">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+      </select>
+      <button aria-label="次のページ">›</button>
+      <button aria-label="最後のページ">»</button>
+    </div>
+
+    <button type="button" class="refresh-link">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      最新情報に更新する
+    </button>
+  </div>
+
+  <div class="cart-footer">
+    <div class="cart-info">
+      <span class="count">999通り 選択中</span>
+      <span class="range">9999.9〜9999.9</span>
+    </div>
+    <button type="button" class="cart-add-btn">カートに追加する</button>
+  </div>
+</div>
+
+<script>
+  // rows: [left column, right column], each entry {n1, c1, n2, c2, odds, hi}
+  var leftRows = [
+    {i:1, n1:'2', c1:'', n2:'3', c2:'red', odds:'4.5', hi:false, hot:true},
+    {i:2, n1:'1', c1:'', n2:'2', c2:'', odds:'9999.0', hi:true, hot:false},
+    {i:3, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:true, hot:false},
+    {i:4, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:5, n1:'1', c1:'', n2:'2', c2:'', odds:'4.5', hi:false, hot:true},
+    {i:6, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:7, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:8, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:9, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:10, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:11, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:12, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:13, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:14, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:15, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:16, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:17, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:18, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:19, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:20, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:21, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:22, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:23, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:24, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
+    {i:25, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false}
+  ];
+  var rightRows = [
+    {i:26, n1:'5', c1:'gold', n2:'6', c2:'green', odds:'37.1', hi:false, hot:false}
+  ];
+  for (var i = 27; i <= 50; i++) {
+    rightRows.push({i:i, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false});
+  }
+
+  function rowHTML(r) {
+    return '<div class="odds-row' + (r.hi ? ' hi' : '') + '">' +
+      '<span class="idx">' + r.i + '</span>' +
+      '<span class="horse' + (r.c1 ? ' ' + r.c1 : '') + '">' + r.n1 + '</span>' +
+      '<span class="arrow">&#8250;</span>' +
+      '<span class="horse' + (r.c2 ? ' ' + r.c2 : '') + '">' + r.n2 + '</span>' +
+      '<span class="odds-val' + (r.hot ? ' hot' : '') + '">' + r.odds + '</span>' +
+      '</div>';
+  }
+
+  var grid = document.getElementById('oddsGrid');
+  var leftCol = document.createElement('div');
+  var rightCol = document.createElement('div');
+  leftRows.forEach(function (r) { leftCol.innerHTML += rowHTML(r); });
+  rightRows.forEach(function (r) { rightCol.innerHTML += rowHTML(r); });
+  grid.appendChild(leftCol);
+  grid.appendChild(rightCol);
+</script>

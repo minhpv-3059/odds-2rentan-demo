@@ -48,82 +48,89 @@
 
   /* ---- race info header ---- */
   .race-header {
-    padding: 12px 14px 10px;
+    padding: 14px;
     border-bottom: 1px solid var(--line);
   }
-  .race-header-top {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
+  .race-header-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    row-gap: 8px;
   }
   .race-no {
-    flex-shrink: 0;
-    background: var(--race-teal);
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    background: var(--race-green);
     color: #ffffff;
     font-weight: 700;
-    font-size: 17px;
-    border-radius: 6px;
-    padding: 6px 10px;
+    font-size: 20px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
   }
-  .race-title-block { flex: 1; min-width: 0; }
+  .race-title-row {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
   .race-title {
-    font-size: 14.5px;
+    flex: 1;
+    min-width: 0;
+    font-size: 17px;
     font-weight: 700;
     line-height: 1.4;
+    color: var(--ink);
   }
-  .race-tags {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 4px;
-  }
+  .race-tags { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .tag-grade {
-    background: var(--sale-red);
+    background: #a8934a;
     color: #ffffff;
-    font-size: 10.5px;
+    font-size: 13px;
     font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 3px;
+    padding: 4px 8px;
+    border-radius: 6px;
   }
   .tag-weather {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     background: #f2a13a;
-    font-size: 11px;
+    font-size: 15px;
   }
-  .collapse-btn {
-    flex-shrink: 0;
-    border: none;
-    background: transparent;
-    color: var(--ink-soft);
-    font-size: 12px;
-    padding: 4px;
-  }
-  .race-header-bottom {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-top: 10px;
-    gap: 12px;
-  }
-  .sale-status { display: flex; flex-direction: column; gap: 4px; }
   .sale-badge {
-    display: inline-block;
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
     width: fit-content;
     background: var(--sale-red);
     color: #ffffff;
-    font-size: 11px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+  .race-meta-line1 { grid-column: 2; grid-row: 2; font-size: 14.5px; color: var(--ink); }
+  .sale-deadline {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    width: fit-content;
+    background: #ffffff;
+    border: 1.5px solid var(--sale-red);
+    color: var(--sale-red);
+    font-size: 12.5px;
     font-weight: 700;
     padding: 3px 8px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
-  .sale-deadline { color: var(--sale-red); font-size: 12.5px; font-weight: 700; }
-  .race-meta { text-align: right; font-size: 12.5px; color: var(--ink); line-height: 1.6; }
-  .race-meta .close-time { color: var(--sale-red); font-weight: 700; }
+  .race-meta-line2 { grid-column: 2; grid-row: 3; font-size: 14.5px; color: var(--ink); }
+  .race-meta-line2 .close-time { color: var(--sale-red); font-weight: 700; }
 
   /* ---- race number tabs ---- */
   .race-tabs {
@@ -486,26 +493,19 @@
 
 <div class="screen">
   <div class="race-header" id="raceHeader">
-    <div class="race-header-top">
+    <div class="race-header-grid">
       <span class="race-no">11R</span>
-      <div class="race-title-block">
+      <div class="race-title-row">
         <div class="race-title">お松の方賞3歳上牝馬（東海・北陸交流）</div>
         <div class="race-tags">
           <span class="tag-grade">重賞</span>
           <span class="tag-weather">☀</span>
         </div>
       </div>
-      <button type="button" class="collapse-btn" aria-label="折りたたむ">▲</button>
-    </div>
-    <div class="race-header-bottom">
-      <div class="sale-status">
-        <span class="sale-badge">発売中</span>
-        <span class="sale-deadline">締切25分前</span>
-      </div>
-      <div class="race-meta">
-        <div>曇 良 ダ 1500m 右回り 10頭</div>
-        <div>2025年5月11日(日) 発走 18:15 <span class="close-time">締切 18:10</span></div>
-      </div>
+      <span class="sale-badge">発売中</span>
+      <div class="race-meta-line1">曇 良 ダ 1500m 右回り 10頭</div>
+      <span class="sale-deadline">締切 25分前</span>
+      <div class="race-meta-line2">2025年5月11日(日) 発走 18:15 <span class="close-time">締切 18:10</span></div>
     </div>
   </div>
 

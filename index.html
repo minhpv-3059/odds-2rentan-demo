@@ -261,6 +261,66 @@
   }
   .reload-link .icon { width: 24px; height: 24px; color: var(--ink); }
   .reload-link span { font-size: 12px; font-weight: 600; color: var(--ink); }
+
+  /* ---- content padding so the last rows aren't hidden behind the fixed cart bar ---- */
+  .screen { padding-bottom: 76px; }
+
+  /* ---- sticky cart bar (footer/parts/追従ボタン) ---- */
+  .cart-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+    border-bottom: 1px solid #eeeeee;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+  .cart-bar .cart-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .cart-bar .cart-heading {
+    display: flex;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .cart-bar .cart-range { font-size: 10px; font-weight: 600; color: var(--ink-soft); }
+  .cart-bar .cart-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .cart-bar .btn-save,
+  .cart-bar .btn-amount {
+    height: 40px;
+    min-width: 106px;
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  .cart-bar .btn-save {
+    background: #ffffff;
+    border: 1px solid #e7750c;
+    color: #e7750c;
+  }
+  .cart-bar .btn-amount {
+    background: #e7750c;
+    border: none;
+    color: #ffffff;
+  }
 </style>
 
 <div class="screen">
@@ -339,6 +399,17 @@
     <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
     <span>最新情報に更新する</span>
   </button>
+</div>
+
+<div class="cart-bar">
+  <div class="cart-info">
+    <div class="cart-heading"><span>999通り</span><span>選択中</span></div>
+    <div class="cart-range">9999.9〜9999.9</div>
+  </div>
+  <div class="cart-actions">
+    <button type="button" class="btn-save">買い目を保存</button>
+    <button type="button" class="btn-amount">金額入力へ</button>
+  </div>
 </div>
 
 <script>

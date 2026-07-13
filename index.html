@@ -1,518 +1,297 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
-<title>11R オッズ 馬連 高配当順</title>
+<title>オッズ投票 馬連（高配当順）</title>
 <style>
   :root {
-    --bg: #ffffff;
-    --surface: #ffffff;
-    --line: #e6e4df;
-    --ink: #24231f;
-    --ink-soft: #6f6d66;
-    --badge-outline: #6f6d66;
-    --badge-blue: #2f6fed;
-    --badge-gold: #e0a83a;
-    --badge-green: #3f9463;
-    --row-hi: #eaf6ee;
-    --odds-hi: #d64a3a;
-    --tab-active: #201f1c;
-    --accent: #ef7a1c;
-    --accent-ink: #ffffff;
-    --race-teal: #0e6b5c;
-    --race-green: #1a9f5c;
-    --sale-red: #e2231d;
-    --navbar-bg: #1c1c1a;
+    --ink: #333333;
+    --ink-soft: #999999;
+    --line: #dedede;
+    --cell-border: #b2b2b2;
+    --nav-bg: #333333;
+    --row-hi: #eaf9f0;
+    --th-bg: #f4f4f4;
+    --badge-outline: #999999;
+    --badge-gray: #4f4f4f;
+    --badge-blue: #4a8ede;
+    --badge-yellow: #fcc539;
+    --badge-green: #3f9d65;
+    --odds-red: #e83d3d;
   }
 
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
-    background: var(--bg);
+    font-family: "Hiragino Kaku Gothic Pro", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    background: #ffffff;
     color: var(--ink);
-    font-variant-numeric: tabular-nums;
     -webkit-tap-highlight-color: transparent;
   }
+  .num { font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic Pro", sans-serif; font-variant-numeric: tabular-nums; }
 
   .screen {
-    width: 100%;
-    min-height: 100vh;
-    background: var(--surface);
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    max-width: 420px;
+    margin: 0 auto;
+    background: #ffffff;
   }
 
-  /* ---- race header ---- */
-  .race-header {
-    padding: 12px 14px 10px;
-    border-bottom: 1px solid var(--line);
-  }
-  .race-header-top {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .race-no {
-    flex-shrink: 0;
-    background: var(--race-teal);
-    color: #fff;
-    font-weight: 700;
-    font-size: 17px;
-    border-radius: 6px;
-    padding: 6px 10px;
-  }
-  .race-title-block { flex: 1; min-width: 0; }
-  .race-title {
-    font-size: 14.5px;
-    font-weight: 700;
-    line-height: 1.4;
-  }
-  .race-tags {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 4px;
-  }
-  .tag-grade {
-    background: #e2231d;
-    color: #fff;
-    font-size: 10.5px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 3px;
-  }
-  .tag-weather {
-    display: inline-flex;
-    gap: 3px;
-  }
-  .tag-weather span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #f2a13a;
-    font-size: 11px;
-  }
-  .collapse-btn {
-    flex-shrink: 0;
-    border: none;
-    background: transparent;
-    color: var(--ink-soft);
-    font-size: 14px;
-    padding: 4px;
-  }
+  .icon { display: inline-flex; }
+  .icon svg { display: block; }
 
-  .race-header-bottom {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-top: 10px;
-    gap: 12px;
-  }
-  .sale-status {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .sale-badge {
-    display: inline-block;
-    background: var(--sale-red);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
-    width: fit-content;
-  }
-  .sale-deadline {
-    color: var(--sale-red);
-    font-size: 12.5px;
-    font-weight: 700;
-  }
-  .race-meta {
-    text-align: right;
-    font-size: 12.5px;
-    color: var(--ink);
-    line-height: 1.6;
-  }
-  .race-meta .close-time { color: var(--sale-red); font-weight: 700; }
-
-  /* ---- race number tabs ---- */
-  .race-tabs {
-    display: flex;
-    gap: 8px;
-    padding: 10px 12px;
-    overflow-x: auto;
-    border-bottom: 1px solid var(--line);
-  }
-  .race-tab {
-    flex-shrink: 0;
-    min-width: 64px;
-    text-align: center;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 6px 10px;
-    background: var(--surface);
-  }
-  .race-tab .r-no { font-weight: 700; font-size: 14px; color: var(--ink); }
-  .race-tab .r-status { font-size: 10.5px; color: var(--ink-soft); margin-top: 2px; }
-  .race-tab.active {
-    background: var(--race-green);
-    border-color: var(--race-green);
-  }
-  .race-tab.active .r-no,
-  .race-tab.active .r-status { color: #fff; }
-  .race-tab.all {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11.5px;
-    font-weight: 700;
-    line-height: 1.3;
-    color: var(--ink);
-  }
-
-  /* ---- bottom-style content nav ---- */
+  /* ---- content nav (出馬表/オッズ/予想/結果) ---- */
   .content-nav {
     display: flex;
-    background: var(--navbar-bg);
+    background: var(--nav-bg);
   }
-  .content-nav button {
+  .content-nav .nav-item {
     flex: 1;
-    border: none;
-    background: transparent;
-    color: #8a8a86;
-    padding: 9px 4px;
-    font-size: 11px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
+    padding: 4px 11px 6px;
+    color: var(--ink-soft);
+    border-bottom: 2px solid transparent;
   }
-  .content-nav button svg { width: 20px; height: 20px; }
-  .content-nav button.active { color: #fff; font-weight: 700; }
+  .content-nav .nav-item .icon { width: 20px; height: 20px; color: var(--ink-soft); }
+  .content-nav .nav-item span { font-size: 10px; font-weight: 600; line-height: 1.2; }
+  .content-nav .nav-item.active { color: #ffffff; border-bottom-color: #ffffff; }
+  .content-nav .nav-item.active .icon { color: #ffffff; }
 
-  /* ---- bet-type tabs ---- */
+  /* ---- bet-type tabs (1行目) ---- */
   .bettype-tabs {
     display: flex;
-    gap: 6px;
-    padding: 10px 10px 8px;
-    overflow-x: auto;
-    border-bottom: 1px solid var(--line);
+    align-items: stretch;
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 2px;
+    margin: 8px 12px 0;
   }
   .bettype-tabs button {
-    flex-shrink: 0;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    border-radius: 6px;
-    padding: 7px 12px;
-    font-size: 12.5px;
-    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    padding: 4px 2px;
+    font-size: 10px;
     font-weight: 600;
-    line-height: 1.3;
-    text-align: center;
+    line-height: 1.2;
+    color: var(--ink);
+    height: 36px;
   }
-  .bettype-tabs button.active {
-    background: var(--tab-active);
-    border-color: var(--tab-active);
-    color: #fff;
-  }
+  .bettype-tabs button.active { background: #333333; color: #ffffff; }
+  .bettype-divider { width: 1px; background: var(--line); align-self: stretch; margin: 8px 0; flex-shrink: 0; }
 
-  /* ---- sort sub-tabs ---- */
+  /* ---- sort tabs (2行目) ---- */
   .sort-tabs {
     display: flex;
-    gap: 6px;
-    padding: 10px 10px 6px;
+    gap: 4px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 2px;
+    margin: 8px 12px 0;
   }
   .sort-tabs button {
     flex: 1;
     border: none;
-    border-radius: 20px;
-    padding: 9px 4px;
-    font-size: 12.5px;
-    font-weight: 600;
     background: transparent;
-    color: var(--ink-soft);
-    cursor: pointer;
+    border-radius: 20px;
+    padding: 4px;
+    height: 28px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink);
   }
-  .sort-tabs button.active {
-    background: var(--tab-active);
-    color: var(--surface);
-  }
+  .sort-tabs button.active { background: #333333; color: #ffffff; }
 
   /* ---- filter row ---- */
   .filter-row {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    padding: 6px 14px 10px;
+    gap: 8px;
+    padding: 12px 12px 8px;
   }
   .filter-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 7px 12px;
-    font-size: 13px;
-    color: var(--ink);
-    background: var(--surface);
+    gap: 4px;
+    border: 1px solid #333333;
+    border-radius: 4px;
+    padding: 6px 8px 6px 6px;
+    background: #ffffff;
   }
-  .filter-chip .check {
-    width: 15px;
-    height: 15px;
-    border-radius: 3px;
-    background: var(--badge-green);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .filter-chip .check svg { width: 10px; height: 10px; }
-  .updated-at {
-    font-size: 12px;
-    color: var(--ink-soft);
-  }
-
-  /* ---- odds list ---- */
-  .list-wrap {
-    flex: 1;
-    padding: 0 12px 110px;
-    overflow-y: auto;
-  }
-  .odds-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 14px;
-  }
-  .odds-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 2px;
-    border-bottom: 1px solid var(--line);
-    font-size: 14px;
-  }
-  .odds-row.hi { background: var(--row-hi); margin: 0 -6px; padding-left: 8px; padding-right: 8px; border-radius: 4px; }
-  .idx {
+  .filter-chip .checkbox {
+    position: relative;
     width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: #eeeeee;
+    border: 1px solid var(--line);
     flex-shrink: 0;
-    color: var(--ink-soft);
-    font-size: 12.5px;
-    text-align: right;
   }
-  .horse {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 24px;
-    padding: 0 4px;
-    border-radius: 5px;
-    background: #fff;
-    border: 1.5px solid var(--badge-outline);
-    color: var(--ink);
-    font-weight: 700;
-    font-size: 13px;
+  .filter-chip .checkbox .icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    color: #999999;
   }
-  .horse.gold { background: var(--badge-gold); border-color: var(--badge-gold); color: #2b2200; }
-  .horse.green { background: var(--badge-green); border-color: var(--badge-green); color: #fff; }
-  .horse.blue { background: var(--badge-blue); border-color: var(--badge-blue); color: #fff; }
-  .sep {
-    color: var(--ink-soft);
-    font-size: 13px;
-    font-weight: 600;
-  }
-  .odds-val {
-    margin-left: auto;
-    font-weight: 700;
-    font-size: 14.5px;
-    color: var(--ink);
-  }
-  .odds-val.hot { color: var(--odds-hi); }
+  .filter-chip span { font-size: 10px; color: var(--ink); white-space: nowrap; }
+  .updated-at { font-size: 12px; color: var(--ink); font-weight: 300; }
 
-  /* ---- pagination ---- */
-  .list-actions {
+  /* ---- odds table ---- */
+  .odds-tables {
     display: flex;
-    justify-content: flex-end;
     gap: 8px;
-    padding: 12px 2px;
+    padding: 1px 12px;
   }
-  .list-actions button {
-    border: 1px solid var(--line);
-    background: var(--surface);
-    color: var(--ink);
-    border-radius: 6px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .pagination {
+  .odds-table { flex: 1; min-width: 0; border: 1px solid var(--cell-border); }
+  .odds-tr { display: flex; }
+  .odds-tr + .odds-tr { margin-top: 1px; }
+  .odds-th {
+    width: 26px;
+    min-width: 26px;
+    max-width: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
-    padding: 6px 0 4px;
+    background: var(--th-bg);
+    border-top: 1px solid var(--cell-border);
+    border-right: 1px solid var(--cell-border);
+    border-bottom: 1px solid var(--cell-border);
   }
-  .pagination button {
-    border: none;
-    background: transparent;
-    color: var(--ink-soft);
-    font-size: 17px;
-    padding: 4px 6px;
-  }
-  .page-select {
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 6px 22px 6px 12px;
-    font-size: 14px;
-    color: var(--ink);
-    background: var(--surface);
-  }
-
-  .refresh-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 10px 0 16px;
-    font-size: 13.5px;
-    color: var(--ink-soft);
-  }
-  .refresh-link svg { width: 15px; height: 15px; }
-
-  /* ---- sticky cart footer ---- */
-  .cart-footer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    background: var(--surface);
-    border-top: 1px solid var(--line);
-    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  .odds-tr:first-child .odds-th { border-top: none; }
+  .odds-th.hi { background: var(--row-hi); }
+  .odds-th span { font-size: 10px; font-weight: 700; color: var(--ink); }
+  .odds-td {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
-    z-index: 10;
+    gap: 4px;
+    padding: 4px 6px;
+    background: #ffffff;
+    border-right: 1px solid var(--cell-border);
+    border-bottom: 1px solid var(--cell-border);
   }
-  .cart-info {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.35;
-    flex-shrink: 0;
-  }
-  .cart-info .count {
-    font-size: 13px;
+  .odds-td.hi { background: var(--row-hi); }
+  .badges { display: flex; align-items: center; gap: 2px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 11px;
     font-weight: 700;
+    background: #ffffff;
+    border: 1px solid var(--badge-outline);
     color: var(--ink);
   }
-  .cart-info .range {
-    font-size: 11px;
-    color: var(--ink-soft);
-  }
-  .cart-actions {
+  .badge.gray { background: var(--badge-gray); border-color: var(--badge-gray); color: #ffffff; }
+  .badge.blue { background: var(--badge-blue); border-color: var(--badge-blue); color: #ffffff; }
+  .badge.yellow { background: var(--badge-yellow); border-color: var(--badge-yellow); color: #151515; }
+  .badge.green { background: var(--badge-green); border-color: var(--badge-green); color: #ffffff; }
+  .sep { width: 8px; height: 8px; color: var(--ink); flex-shrink: 0; }
+  .odds-val { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .odds-val.hot { color: var(--odds-red); }
+
+  /* ---- action row ---- */
+  .action-row {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 12px;
   }
-  .cart-save-btn {
-    border: 1.5px solid var(--accent);
-    background: #fff;
-    color: var(--accent);
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 13px;
-    padding: 11px 14px;
-    white-space: nowrap;
+  .action-row button {
+    border: 1px solid #333333;
+    background: #ffffff;
+    color: var(--ink);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 8px 12px;
+    height: 28px;
+    display: flex;
+    align-items: center;
   }
-  .cart-amount-btn {
-    border: none;
-    border-radius: 8px;
-    background: var(--accent);
-    color: var(--accent-ink);
-    font-weight: 700;
-    font-size: 13px;
-    padding: 11px 16px;
-    white-space: nowrap;
+
+  /* ---- pager ---- */
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 6px 0 20px;
   }
+  .pager .icon { width: 16px; height: 16px; color: var(--ink); }
+  .pager select {
+    width: 80px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+    color: var(--ink);
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  /* ---- reload link ---- */
+  .reload-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 0 28px;
+  }
+  .reload-link .icon { width: 24px; height: 24px; color: var(--ink); }
+  .reload-link span { font-size: 12px; font-weight: 600; color: var(--ink); }
 </style>
 
 <div class="screen">
-  <div class="race-header">
-    <div class="race-header-top">
-      <span class="race-no">11R</span>
-      <div class="race-title-block">
-        <div class="race-title">お松の方賞3歳上牝馬（東海・北陸交流）</div>
-        <div class="race-tags">
-          <span class="tag-grade">重賞</span>
-          <span class="tag-weather"><span>☀</span></span>
-        </div>
-      </div>
-      <button type="button" class="collapse-btn" aria-label="折りたたむ">▲</button>
-    </div>
-    <div class="race-header-bottom">
-      <div class="sale-status">
-        <span class="sale-badge">発売中</span>
-        <span class="sale-deadline">締切25分前</span>
-      </div>
-      <div class="race-meta">
-        <div>曇 良 ダ 1500m 右回り 10頭</div>
-        <div>2025年5月11日(日) 発走 18:15 <span class="close-time">締切 18:10</span></div>
-      </div>
-    </div>
-  </div>
-
-  <nav class="race-tabs">
-    <div class="race-tab">
-      <div class="r-no">8R</div>
-      <div class="r-status">発売中</div>
-    </div>
-    <div class="race-tab">
-      <div class="r-no">9R</div>
-      <div class="r-status">発売中</div>
-    </div>
-    <div class="race-tab">
-      <div class="r-no">10R</div>
-      <div class="r-status">発売中</div>
-    </div>
-    <div class="race-tab active">
-      <div class="r-no">11R</div>
-      <div class="r-status">発売中</div>
-    </div>
-    <div class="race-tab all">全レース<br>一覧</div>
-  </nav>
-
   <nav class="content-nav">
-    <button type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>
-      出馬表
-    </button>
-    <button type="button" class="active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
-      オッズ
-    </button>
-    <button type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5"/></svg>
-      予想
-    </button>
-    <button type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12v4a6 6 0 0 1-12 0V4z"/><path d="M6 6H3a3 3 0 0 0 3 4M18 6h3a3 3 0 0 1-3 4M9 20h6M12 14v6"/></svg>
-      結果
-    </button>
+    <div class="nav-item">
+      <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.47 3.5H2.53C1.68 3.5 1 4.18 1 5.03V15.24C1 16.08 1.68 16.77 2.53 16.77H17.47C18.31 16.77 19 16.09 19 15.24V5.03C19 4.19 18.32 3.5 17.47 3.5ZM6.3 13.72C6.3 13.89 6.16 14.03 5.99 14.03H3.72C3.55 14.03 3.41 13.89 3.41 13.72V11.45C3.41 11.28 3.55 11.14 3.72 11.14H5.99C6.16 11.14 6.3 11.28 6.3 11.45V13.72ZM6.3 8.81C6.3 8.98 6.16 9.12 5.99 9.12H3.72C3.55 9.12 3.41 8.98 3.41 8.81V6.54C3.41 6.37 3.55 6.23 3.72 6.23H5.99C6.16 6.23 6.3 6.37 6.3 6.54V8.81ZM13.84 13.34H8.21C7.8 13.34 7.46 13 7.46 12.59C7.46 12.18 7.8 11.84 8.21 11.84H13.84C14.25 11.84 14.59 12.18 14.59 12.59C14.59 13 14.25 13.34 13.84 13.34ZM16.59 8.43H8.21C7.8 8.43 7.46 8.09 7.46 7.68C7.46 7.27 7.8 6.93 8.21 6.93H16.59C17 6.93 17.34 7.27 17.34 7.68C17.34 8.09 17 8.43 16.59 8.43Z" fill="currentColor"/></svg></span>
+      <span>出馬表</span>
+    </div>
+    <div class="nav-item active">
+      <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 13.2002C8.27614 13.2002 8.5 13.4241 8.5 13.7002V16.6797C8.5 16.9558 8.27614 17.1797 8 17.1797H2C1.72386 17.1797 1.5 16.9558 1.5 16.6797V13.7002C1.5 13.4241 1.72386 13.2002 2 13.2002H8Z" fill="currentColor"/><path d="M13 7.84961C13.276 7.84961 13.4998 8.07364 13.5 8.34961V11.3301C13.4999 11.6062 13.2761 11.8301 13 11.8301H2C1.72389 11.8301 1.50006 11.6062 1.5 11.3301V8.34961C1.5002 8.07364 1.72398 7.84961 2 7.84961H13Z" fill="currentColor"/><path d="M18 2.5C18.2761 2.5 18.5 2.72386 18.5 3V5.98047C18.4997 6.2564 18.276 6.48047 18 6.48047H2C1.72401 6.48047 1.50025 6.2564 1.5 5.98047V3C1.5 2.72386 1.72386 2.5 2 2.5H18Z" fill="currentColor"/></svg></span>
+      <span>オッズ</span>
+    </div>
+    <div class="nav-item">
+      <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.7527 3.6777L16.7603 3.46503C16.6389 3.4549 16.5377 3.35363 16.5276 3.23211L16.3152 1.23707C16.295 1.01427 16.0219 0.923128 15.8702 1.07503L12.391 4.55876C12.3303 4.61952 12.3101 4.69041 12.3202 4.77143L12.5225 6.65507L9.43767 9.74383C9.20504 9.97675 9.20504 10.3413 9.43767 10.5743C9.67029 10.8072 10.0344 10.8072 10.267 10.5743L13.3518 7.48549L15.233 7.68803C15.3139 7.68803 15.3847 7.66778 15.4454 7.61714L18.9247 4.13342C19.0764 3.98151 18.9853 3.70808 18.773 3.68783L18.7527 3.6777Z" fill="currentColor"/><path d="M11.4504 6.28036L11.3593 5.39931C9.59949 4.82206 7.5969 5.21702 6.19105 6.61456C4.20869 8.59947 4.20869 11.8199 6.19105 13.8048C8.17341 15.7897 11.3897 15.7897 13.372 13.8048C14.7678 12.4073 15.1622 10.392 14.5857 8.62985L13.7058 8.53871L10.9649 11.2831C10.6615 11.587 10.267 11.749 9.83211 11.749C9.39721 11.749 9.00276 11.587 8.69934 11.2831C8.07227 10.6553 8.07227 9.64256 8.69934 9.02481L11.4403 6.28036H11.4504Z" fill="currentColor"/><path d="M16.6389 7.82981C16.9019 8.58934 17.0434 9.38938 17.0434 10.2198C17.0434 12.1642 16.2849 13.9871 14.9195 15.3644C13.544 16.7417 11.7234 17.4911 9.78154 17.4911C7.83964 17.4911 6.01911 16.7315 4.64359 15.3644C1.81165 12.5187 1.81165 7.91083 4.64359 5.07524C6.01911 3.69795 7.83964 2.94855 9.78154 2.94855C10.6109 2.94855 11.4099 3.09033 12.1685 3.35363L13.3316 2.18901C12.1988 1.69279 10.9952 1.42948 9.78154 1.42948C7.53622 1.42948 5.2909 2.29029 3.5715 4.00177C0.142832 7.43485 0.142832 12.9946 3.5715 16.4277C5.2909 18.1493 7.53622 19 9.78154 19C12.0269 19 14.2722 18.1392 15.9916 16.4277C18.6314 13.7845 19.2281 9.87548 17.802 6.65507L16.6389 7.81968V7.82981Z" fill="currentColor"/></svg></span>
+      <span>予想</span>
+    </div>
+    <div class="nav-item">
+      <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.12351 1.75174L4.25347 2.74512H3.32526C3.27663 2.74512 3.22907 2.74975 3.18301 2.75859C2.03627 2.82497 1 3.68789 1 4.90748V5.45933C1 7.83371 2.8649 9.70661 5.22139 10.1438L5.40473 11.5452C5.42573 11.7854 5.57276 11.9942 5.79329 12.0986L8.9624 13.6462V16.4524L6.69616 18.0503C6.27609 18.3426 6.48612 19.0004 7.00071 19.0004H12.9237C13.4383 19.0004 13.6483 18.3426 13.2282 18.0503L10.9624 16.4526V13.6463L14.1317 12.0986C14.3522 11.9942 14.4992 11.7854 14.5202 11.5452L14.7039 10.1418C17.0551 9.70068 18.9141 7.82996 18.9141 5.45933V4.90748C18.9141 3.63764 17.7906 2.75447 16.5888 2.75447H15.6703L15.8015 1.75174C15.8435 1.34455 15.5179 1 15.1083 1H4.80613C4.39656 1 4.08151 1.34455 4.11301 1.75174H4.12351ZM14.912 8.55101L15.474 4.25447H16.5888C17.1302 4.25447 17.4141 4.62466 17.4141 4.90748V5.45933C17.4141 6.83065 16.4073 8.08678 14.912 8.55101ZM3.44404 4.24512H4.4497L5.01347 8.55452C3.51183 8.09315 2.5 6.83413 2.5 5.45933V4.90748C2.5 4.62466 2.78382 4.25447 3.32526 4.25447C3.36568 4.25447 3.40536 4.25127 3.44404 4.24512Z" fill="currentColor"/></svg></span>
+      <span>結果</span>
+    </div>
   </nav>
 
   <nav class="bettype-tabs">
     <button>単勝/<br>複勝</button>
+    <div class="bettype-divider"></div>
     <button>枠連</button>
+    <div class="bettype-divider"></div>
     <button>枠単</button>
+    <div class="bettype-divider"></div>
     <button class="active">馬連</button>
+    <div class="bettype-divider"></div>
     <button>馬単</button>
+    <div class="bettype-divider"></div>
     <button>ワイド</button>
+    <div class="bettype-divider"></div>
     <button>3連複</button>
+    <div class="bettype-divider"></div>
     <button>3連単</button>
   </nav>
 
@@ -525,101 +304,76 @@
 
   <div class="filter-row">
     <span class="filter-chip">
-      <span class="check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      オッズで絞る
+      <span class="checkbox"><span class="icon"><svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.4709 8.38314L0.541737 5.48731C0.379237 5.32481 0.37507 5.06231 0.541737 4.89981L1.12924 4.30814C1.29174 4.14564 1.55424 4.14148 1.71674 4.30814L3.4709 6.04148C3.6334 6.20398 3.8959 6.19981 4.0584 6.04148L8.2959 1.78731C8.4584 1.62481 8.7209 1.62481 8.8834 1.78731L9.4709 2.37481C9.6334 2.53731 9.6334 2.79981 9.4709 2.96231L4.05424 8.37898C3.89174 8.54148 3.62924 8.54148 3.46674 8.37898L3.4709 8.38314Z" fill="currentColor" fill-opacity="0.3"/></svg></span></span>
+      <span>オッズで絞る</span>
     </span>
     <span class="updated-at">15:15現在</span>
   </div>
 
-  <div class="list-wrap" id="listWrap">
-    <div class="odds-grid" id="oddsGrid"></div>
+  <div class="odds-tables" id="oddsTables"></div>
 
-    <div class="list-actions">
-      <button type="button">クリア</button>
-      <button type="button">ページ内全選択</button>
-    </div>
-
-    <div class="pagination">
-      <button aria-label="最初のページ">«</button>
-      <button aria-label="前のページ">‹</button>
-      <select class="page-select">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-      </select>
-      <button aria-label="次のページ">›</button>
-      <button aria-label="最後のページ">»</button>
-    </div>
-
-    <button type="button" class="refresh-link">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      最新情報に更新する
-    </button>
+  <div class="action-row">
+    <button type="button">クリア</button>
+    <button type="button">ページ内全選択</button>
   </div>
 
-  <div class="cart-footer">
-    <div class="cart-info">
-      <span class="count">999通り 選択中</span>
-      <span class="range">9999.9〜9999.9</span>
-    </div>
-    <div class="cart-actions">
-      <button type="button" class="cart-save-btn">買い目を保存</button>
-      <button type="button" class="cart-amount-btn">金額入力へ</button>
-    </div>
+  <div class="pager">
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.2667 0.9L15.7533 1.38C15.9067 1.53333 15.9867 1.73333 15.9867 1.94667C15.9867 2.16 15.9067 2.36 15.7533 2.51333L10.2733 7.99333L15.76 13.48C15.9133 13.6333 15.9933 13.8333 15.9933 14.0467C15.9933 14.26 15.9133 14.46 15.76 14.6133L15.28 15.0933C14.9667 15.4067 14.46 15.4067 14.1467 15.0933L7.59333 8.56C7.44 8.40667 7.33333 8.20667 7.33333 7.99333C7.33333 7.77333 7.44 7.57333 7.59333 7.42667L14.12 0.9C14.2733 0.746667 14.48 0.666667 14.6933 0.666667C14.9067 0.666667 15.1133 0.746667 15.26 0.9H15.2667Z" fill="currentColor"/><path d="M7.93333 0.9L8.42 1.38C8.57333 1.53333 8.65333 1.73333 8.65333 1.94667C8.65333 2.16 8.57333 2.36 8.42 2.51333L2.94 7.99333L8.42667 13.48C8.58 13.6333 8.66 13.8333 8.66 14.0467C8.66 14.26 8.58 14.46 8.42667 14.6133L7.94667 15.0933C7.63333 15.4067 7.12667 15.4067 6.81333 15.0933L0.26 8.56C0.106666 8.40667 0 8.20667 0 7.99333C0 7.77333 0.106666 7.57333 0.26 7.42667L6.78667 0.9C6.94 0.746667 7.14667 0.666667 7.36 0.666667C7.57333 0.666667 7.78 0.746667 7.92667 0.9H7.93333Z" fill="currentColor"/></svg></span>
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.0333 0.666667C10.82 0.666667 10.6133 0.746667 10.46 0.9L3.92667 7.42667C3.77333 7.58 3.66667 7.78 3.66667 7.99333C3.66667 8.21333 3.77333 8.41333 3.92667 8.56667L10.48 15.1C10.7933 15.4133 11.3 15.4133 11.6133 15.1L12.0933 14.62C12.2467 14.4667 12.3267 14.2667 12.3267 14.0533C12.3267 13.84 12.2467 13.64 12.0933 13.4867L6.60667 8L12.0867 2.51333C12.24 2.36 12.32 2.16 12.32 1.94667C12.32 1.73333 12.24 1.53333 12.0867 1.38L11.6 0.9C11.4467 0.746667 11.2467 0.666667 11.0333 0.666667Z" fill="currentColor"/></svg></span>
+    <select>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+    </select>
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91333 1.38C3.76 1.53333 3.68 1.73333 3.68 1.94667C3.68 2.16 3.76 2.36 3.91333 2.51333L9.39333 7.99333L3.90667 13.48C3.75333 13.6333 3.67333 13.8333 3.67333 14.0467C3.67333 14.26 3.75333 14.46 3.90667 14.6133L4.38667 15.0933C4.7 15.4067 5.20667 15.4067 5.52 15.0933L12.0733 8.56C12.2267 8.40667 12.3333 8.20667 12.3333 7.99333C12.3333 7.77333 12.2267 7.57333 12.0733 7.42667L5.54667 0.9C5.39333 0.746667 5.18667 0.666667 4.97333 0.666667C4.76 0.666667 4.55333 0.746667 4.40667 0.9H4.4Z" fill="currentColor"/></svg></span>
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.726667 0.9L0.24 1.38C0.0866668 1.53333 0.00666682 1.73333 0.00666682 1.94667C0.00666682 2.16 0.0866668 2.36 0.24 2.51333L5.72 7.99333L0.233333 13.48C0.0799999 13.6333 0 13.8333 0 14.0467C0 14.26 0.0799999 14.46 0.233333 14.6133L0.713333 15.0933C1.02667 15.4067 1.53333 15.4067 1.84667 15.0933L8.4 8.56C8.55333 8.40667 8.66 8.20667 8.66 7.99333C8.66 7.77333 8.55333 7.57333 8.4 7.42667L1.87333 0.9C1.72 0.746667 1.51333 0.666667 1.3 0.666667C1.08667 0.666667 0.88 0.746667 0.733333 0.9H0.726667Z" fill="currentColor"/><path d="M8.06 0.9L7.57333 1.38C7.42 1.53333 7.34 1.73333 7.34 1.94667C7.34 2.16 7.42 2.36 7.57333 2.51333L13.0533 7.99333L7.56667 13.48C7.41333 13.6333 7.33333 13.8333 7.33333 14.0467C7.33333 14.26 7.41333 14.46 7.56667 14.6133L8.04667 15.0933C8.36 15.4067 8.86667 15.4067 9.18 15.0933L15.7333 8.56C15.8867 8.40667 15.9933 8.20667 15.9933 7.99333C15.9933 7.77333 15.8867 7.57333 15.7333 7.42667L9.20667 0.9C9.05333 0.746667 8.84667 0.666667 8.63333 0.666667C8.42 0.666667 8.21333 0.746667 8.06667 0.9H8.06Z" fill="currentColor"/></svg></span>
   </div>
+
+  <button type="button" class="reload-link">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+    <span>最新情報に更新する</span>
+  </button>
 </div>
 
 <script>
-  // rows: [left column, right column], each entry {n1, c1, n2, c2, odds, hi, hot}
-  var leftRows = [
-    {i:1, n1:'2', c1:'', n2:'4', c2:'blue', odds:'4.5', hi:false, hot:true},
-    {i:2, n1:'1', c1:'', n2:'2', c2:'', odds:'9999.0', hi:true, hot:false},
-    {i:3, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:true, hot:false},
-    {i:4, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:5, n1:'1', c1:'', n2:'2', c2:'', odds:'4.5', hi:true, hot:true},
-    {i:6, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:7, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:8, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:9, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:10, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:11, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:12, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:13, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:14, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:15, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:16, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:17, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:18, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:19, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:20, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:21, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:22, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:23, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:24, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:25, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false}
-  ];
-  var rightRows = [
-    {i:26, n1:'5', c1:'gold', n2:'6', c2:'green', odds:'37.1', hi:false, hot:false}
-  ];
-  for (var i = 27; i <= 50; i++) {
-    rightRows.push({i:i, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false});
+  var SEP_SVG = '<svg viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.66667 3.66667C1.66667 3.48257 1.78274 3.33333 1.92593 3.33333H6.07407C6.21726 3.33333 6.33333 3.48257 6.33333 3.66667V4.33333C6.33333 4.51743 6.21726 4.66667 6.07407 4.66667H1.92593C1.78274 4.66667 1.66667 4.51743 1.66667 4.33333V3.66667Z" fill="currentColor"/></svg>';
+
+  function defaultRow(i) {
+    return { i: i, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: false, hot: false };
   }
+
+  var rows1to25 = [];
+  for (var i = 1; i <= 25; i++) rows1to25.push(defaultRow(i));
+  rows1to25[0] = { i: 1, n1: '2', c1: 'gray', n2: '4', c2: 'blue', odds: '4.5', hi: false, hot: true };
+  rows1to25[1] = { i: 2, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '9999.0', hi: true, hot: false };
+  rows1to25[2] = { i: 3, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: true, hot: false };
+  rows1to25[4] = { i: 5, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '4.5', hi: true, hot: true };
+
+  var rows26to50 = [];
+  for (var j = 26; j <= 50; j++) rows26to50.push(defaultRow(j));
+  rows26to50[0] = { i: 26, n1: '5', c1: 'yellow', n2: '6', c2: 'green', odds: '37.1', hi: false, hot: false };
 
   function rowHTML(r) {
-    return '<div class="odds-row' + (r.hi ? ' hi' : '') + '">' +
-      '<span class="idx">' + r.i + '</span>' +
-      '<span class="horse' + (r.c1 ? ' ' + r.c1 : '') + '">' + r.n1 + '</span>' +
-      '<span class="sep">-</span>' +
-      '<span class="horse' + (r.c2 ? ' ' + r.c2 : '') + '">' + r.n2 + '</span>' +
-      '<span class="odds-val' + (r.hot ? ' hot' : '') + '">' + r.odds + '</span>' +
-      '</div>';
+    return '<div class="odds-tr">' +
+      '<div class="odds-th' + (r.hi ? ' hi' : '') + '"><span class="num">' + r.i + '</span></div>' +
+      '<div class="odds-td' + (r.hi ? ' hi' : '') + '">' +
+        '<div class="badges">' +
+          '<span class="badge' + (r.c1 ? ' ' + r.c1 : '') + '">' + r.n1 + '</span>' +
+          '<span class="sep">' + SEP_SVG + '</span>' +
+          '<span class="badge' + (r.c2 ? ' ' + r.c2 : '') + '">' + r.n2 + '</span>' +
+        '</div>' +
+        '<span class="odds-val num' + (r.hot ? ' hot' : '') + '">' + r.odds + '</span>' +
+      '</div>' +
+    '</div>';
   }
 
-  var grid = document.getElementById('oddsGrid');
-  var leftCol = document.createElement('div');
-  var rightCol = document.createElement('div');
-  leftRows.forEach(function (r) { leftCol.innerHTML += rowHTML(r); });
-  rightRows.forEach(function (r) { rightCol.innerHTML += rowHTML(r); });
-  grid.appendChild(leftCol);
-  grid.appendChild(rightCol);
+  var wrap = document.getElementById('oddsTables');
+  var left = document.createElement('div');
+  var right = document.createElement('div');
+  left.className = 'odds-table';
+  right.className = 'odds-table';
+  rows1to25.forEach(function (r) { left.innerHTML += rowHTML(r); });
+  rows26to50.forEach(function (r) { right.innerHTML += rowHTML(r); });
+  wrap.appendChild(left);
+  wrap.appendChild(right);
 </script>

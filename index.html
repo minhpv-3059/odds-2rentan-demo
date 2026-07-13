@@ -16,6 +16,9 @@
     --badge-yellow: #fcc539;
     --badge-green: #3f9d65;
     --odds-red: #e83d3d;
+    --race-teal: #0e6b5c;
+    --race-green: #1a9f5c;
+    --sale-red: #e2231d;
   }
 
   * { box-sizing: border-box; }
@@ -42,6 +45,153 @@
 
   .icon { display: inline-flex; }
   .icon svg { display: block; }
+
+  /* ---- race info header ---- */
+  .race-header {
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .race-header-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .race-no {
+    flex-shrink: 0;
+    background: var(--race-teal);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 17px;
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  .race-title-block { flex: 1; min-width: 0; }
+  .race-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .race-tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag-grade {
+    background: var(--sale-red);
+    color: #ffffff;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .tag-weather {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #f2a13a;
+    font-size: 11px;
+  }
+  .collapse-btn {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 12px;
+    padding: 4px;
+  }
+  .race-header-bottom {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-top: 10px;
+    gap: 12px;
+  }
+  .sale-status { display: flex; flex-direction: column; gap: 4px; }
+  .sale-badge {
+    display: inline-block;
+    width: fit-content;
+    background: var(--sale-red);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .sale-deadline { color: var(--sale-red); font-size: 12.5px; font-weight: 700; }
+  .race-meta { text-align: right; font-size: 12.5px; color: var(--ink); line-height: 1.6; }
+  .race-meta .close-time { color: var(--sale-red); font-weight: 700; }
+
+  /* ---- race number tabs ---- */
+  .race-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+    -webkit-overflow-scrolling: touch;
+  }
+  .race-tab {
+    flex-shrink: 0;
+    min-width: 60px;
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    background: #ffffff;
+  }
+  .race-tab .r-no { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .race-tab .r-status { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
+  .race-tab.active { background: var(--race-green); border-color: var(--race-green); }
+  .race-tab.active .r-no,
+  .race-tab.active .r-status { color: #ffffff; }
+  .race-tab.done { opacity: 0.55; }
+  .race-tab.all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  /* ---- mini sticky header (shown once the race header scrolls out) ---- */
+  .mini-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 8px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transform: translateY(-100%);
+    transition: transform 0.18s ease;
+  }
+  .mini-header.visible { transform: translateY(0); }
+  .mini-header .icon { width: 20px; height: 20px; color: var(--ink-soft); flex-shrink: 0; }
+  .mini-header .mini-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .mini-header .mini-name { font-size: 15px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
+  .mini-header .mini-status { font-size: 13px; color: var(--ink); flex-shrink: 0; }
+  .mini-header .mini-post { font-size: 13px; color: var(--ink); flex-shrink: 0; }
+  .mini-header .mini-close { font-size: 13px; font-weight: 700; color: var(--sale-red); flex-shrink: 0; }
 
   /* ---- content nav (出馬表/オッズ/予想/結果) ---- */
   .content-nav {
@@ -323,7 +473,44 @@
   }
 </style>
 
+<div class="mini-header" id="miniHeader">
+  <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.0333 0.666667C10.82 0.666667 10.6133 0.746667 10.46 0.9L3.92667 7.42667C3.77333 7.58 3.66667 7.78 3.66667 7.99333C3.66667 8.21333 3.77333 8.41333 3.92667 8.56667L10.48 15.1C10.7933 15.4133 11.3 15.4133 11.6133 15.1L12.0933 14.62C12.2467 14.4667 12.3267 14.2667 12.3267 14.0533C12.3267 13.84 12.2467 13.64 12.0933 13.4867L6.60667 8L12.0867 2.51333C12.24 2.36 12.32 2.16 12.32 1.94667C12.32 1.73333 12.24 1.53333 12.0867 1.38L11.6 0.9C11.4467 0.746667 11.2467 0.666667 11.0333 0.666667Z" fill="currentColor"/></svg></span>
+  <div class="mini-body">
+    <span class="mini-name">金沢 11R</span>
+    <span class="mini-status">発売中</span>
+    <span class="mini-post">発走 18:15</span>
+    <span class="mini-close">締切 18:10</span>
+  </div>
+  <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91333 1.38C3.76 1.53333 3.68 1.73333 3.68 1.94667C3.68 2.16 3.76 2.36 3.91333 2.51333L9.39333 7.99333L3.90667 13.48C3.75333 13.6333 3.67333 13.8333 3.67333 14.0467C3.67333 14.26 3.75333 14.46 3.90667 14.6133L4.38667 15.0933C4.7 15.4067 5.20667 15.4067 5.52 15.0933L12.0733 8.56C12.2267 8.40667 12.3333 8.20667 12.3333 7.99333C12.3333 7.77333 12.2267 7.57333 12.0733 7.42667L5.54667 0.9C5.39333 0.746667 5.18667 0.666667 4.97333 0.666667C4.76 0.666667 4.55333 0.746667 4.40667 0.9H4.4Z" fill="currentColor"/></svg></span>
+</div>
+
 <div class="screen">
+  <div class="race-header" id="raceHeader">
+    <div class="race-header-top">
+      <span class="race-no">11R</span>
+      <div class="race-title-block">
+        <div class="race-title">お松の方賞3歳上牝馬（東海・北陸交流）</div>
+        <div class="race-tags">
+          <span class="tag-grade">重賞</span>
+          <span class="tag-weather">☀</span>
+        </div>
+      </div>
+      <button type="button" class="collapse-btn" aria-label="折りたたむ">▲</button>
+    </div>
+    <div class="race-header-bottom">
+      <div class="sale-status">
+        <span class="sale-badge">発売中</span>
+        <span class="sale-deadline">締切25分前</span>
+      </div>
+      <div class="race-meta">
+        <div>曇 良 ダ 1500m 右回り 10頭</div>
+        <div>2025年5月11日(日) 発走 18:15 <span class="close-time">締切 18:10</span></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="race-tabs" id="raceTabs"></nav>
+
   <nav class="content-nav">
     <div class="nav-item">
       <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.47 3.5H2.53C1.68 3.5 1 4.18 1 5.03V15.24C1 16.08 1.68 16.77 2.53 16.77H17.47C18.31 16.77 19 16.09 19 15.24V5.03C19 4.19 18.32 3.5 17.47 3.5ZM6.3 13.72C6.3 13.89 6.16 14.03 5.99 14.03H3.72C3.55 14.03 3.41 13.89 3.41 13.72V11.45C3.41 11.28 3.55 11.14 3.72 11.14H5.99C6.16 11.14 6.3 11.28 6.3 11.45V13.72ZM6.3 8.81C6.3 8.98 6.16 9.12 5.99 9.12H3.72C3.55 9.12 3.41 8.98 3.41 8.81V6.54C3.41 6.37 3.55 6.23 3.72 6.23H5.99C6.16 6.23 6.3 6.37 6.3 6.54V8.81ZM13.84 13.34H8.21C7.8 13.34 7.46 13 7.46 12.59C7.46 12.18 7.8 11.84 8.21 11.84H13.84C14.25 11.84 14.59 12.18 14.59 12.59C14.59 13 14.25 13.34 13.84 13.34ZM16.59 8.43H8.21C7.8 8.43 7.46 8.09 7.46 7.68C7.46 7.27 7.8 6.93 8.21 6.93H16.59C17 6.93 17.34 7.27 17.34 7.68C17.34 8.09 17 8.43 16.59 8.43Z" fill="currentColor"/></svg></span>
@@ -453,4 +640,32 @@
   rows26to50.forEach(function (r) { right.innerHTML += rowHTML(r); });
   wrap.appendChild(left);
   wrap.appendChild(right);
+
+  // fake race list for the race number tabs (long enough to scroll horizontally)
+  var raceTabs = document.getElementById('raceTabs');
+  for (var raceNo = 1; raceNo <= 12; raceNo++) {
+    var tab = document.createElement('div');
+    var isActive = raceNo === 11;
+    tab.className = 'race-tab' + (isActive ? ' active' : (raceNo < 8 ? ' done' : ''));
+    tab.innerHTML = '<div class="r-no">' + raceNo + 'R</div><div class="r-status">' + (raceNo < 8 ? '発売終了' : '発売中') + '</div>';
+    raceTabs.appendChild(tab);
+  }
+  var allTab = document.createElement('div');
+  allTab.className = 'race-tab all';
+  allTab.innerHTML = '全レース<br>一覧';
+  raceTabs.appendChild(allTab);
+
+  // reveal the mini sticky header once the full race header scrolls past the top
+  var raceHeaderEl = document.getElementById('raceHeader');
+  var miniHeaderEl = document.getElementById('miniHeader');
+  function updateMiniHeader() {
+    var rect = raceHeaderEl.getBoundingClientRect();
+    if (rect.bottom <= 0) {
+      miniHeaderEl.classList.add('visible');
+    } else {
+      miniHeaderEl.classList.remove('visible');
+    }
+  }
+  window.addEventListener('scroll', updateMiniHeader, { passive: true });
+  updateMiniHeader();
 </script>

@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
-<title>2連単 高配当順</title>
+<title>11R オッズ 馬連 高配当順</title>
 <style>
   :root {
     --bg: #ffffff;
@@ -8,8 +8,8 @@
     --line: #e6e4df;
     --ink: #24231f;
     --ink-soft: #6f6d66;
-    --badge: #2c2c28;
-    --badge-highlight: #e8503f;
+    --badge-outline: #6f6d66;
+    --badge-blue: #2f6fed;
     --badge-gold: #e0a83a;
     --badge-green: #3f9463;
     --row-hi: #eaf6ee;
@@ -17,6 +17,10 @@
     --tab-active: #201f1c;
     --accent: #ef7a1c;
     --accent-ink: #ffffff;
+    --race-teal: #0e6b5c;
+    --race-green: #1a9f5c;
+    --sale-red: #e2231d;
+    --navbar-bg: #1c1c1a;
   }
 
   * { box-sizing: border-box; }
@@ -38,25 +42,182 @@
     position: relative;
   }
 
-  /* ---- top bet-type tabs ---- */
-  .bettype-tabs {
-    display: flex;
+  /* ---- race header ---- */
+  .race-header {
+    padding: 12px 14px 10px;
     border-bottom: 1px solid var(--line);
   }
-  .bettype-tabs button {
+  .race-header-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .race-no {
+    flex-shrink: 0;
+    background: var(--race-teal);
+    color: #fff;
+    font-weight: 700;
+    font-size: 17px;
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  .race-title-block { flex: 1; min-width: 0; }
+  .race-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .race-tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag-grade {
+    background: #e2231d;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .tag-weather {
+    display: inline-flex;
+    gap: 3px;
+  }
+  .tag-weather span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #f2a13a;
+    font-size: 11px;
+  }
+  .collapse-btn {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 4px;
+  }
+
+  .race-header-bottom {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-top: 10px;
+    gap: 12px;
+  }
+  .sale-status {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sale-badge {
+    display: inline-block;
+    background: var(--sale-red);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    width: fit-content;
+  }
+  .sale-deadline {
+    color: var(--sale-red);
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+  .race-meta {
+    text-align: right;
+    font-size: 12.5px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .race-meta .close-time { color: var(--sale-red); font-weight: 700; }
+
+  /* ---- race number tabs ---- */
+  .race-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+  }
+  .race-tab {
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    background: var(--surface);
+  }
+  .race-tab .r-no { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .race-tab .r-status { font-size: 10.5px; color: var(--ink-soft); margin-top: 2px; }
+  .race-tab.active {
+    background: var(--race-green);
+    border-color: var(--race-green);
+  }
+  .race-tab.active .r-no,
+  .race-tab.active .r-status { color: #fff; }
+  .race-tab.all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  /* ---- bottom-style content nav ---- */
+  .content-nav {
+    display: flex;
+    background: var(--navbar-bg);
+  }
+  .content-nav button {
     flex: 1;
     border: none;
     background: transparent;
-    padding: 13px 4px;
-    font-size: 13px;
-    color: var(--ink-soft);
-    border-bottom: 3px solid transparent;
+    color: #8a8a86;
+    padding: 9px 4px;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .content-nav button svg { width: 20px; height: 20px; }
+  .content-nav button.active { color: #fff; font-weight: 700; }
+
+  /* ---- bet-type tabs ---- */
+  .bettype-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 10px 10px 8px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+  }
+  .bettype-tabs button {
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    color: var(--ink);
     font-weight: 600;
-    cursor: pointer;
+    line-height: 1.3;
+    text-align: center;
   }
   .bettype-tabs button.active {
-    color: var(--tab-active);
-    border-bottom-color: var(--tab-active);
+    background: var(--tab-active);
+    border-color: var(--tab-active);
+    color: #fff;
   }
 
   /* ---- sort sub-tabs ---- */
@@ -117,7 +278,7 @@
   /* ---- odds list ---- */
   .list-wrap {
     flex: 1;
-    padding: 0 12px 100px;
+    padding: 0 12px 110px;
     overflow-y: auto;
   }
   .odds-grid {
@@ -145,21 +306,23 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 26px;
-    height: 26px;
-    padding: 0 5px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 4px;
     border-radius: 5px;
-    background: var(--badge);
-    color: #fff;
+    background: #fff;
+    border: 1.5px solid var(--badge-outline);
+    color: var(--ink);
     font-weight: 700;
     font-size: 13px;
   }
-  .horse.gold { background: var(--badge-gold); color: #2b2200; }
-  .horse.green { background: var(--badge-green); }
-  .horse.red { background: var(--badge-highlight); }
-  .arrow {
+  .horse.gold { background: var(--badge-gold); border-color: var(--badge-gold); color: #2b2200; }
+  .horse.green { background: var(--badge-green); border-color: var(--badge-green); color: #fff; }
+  .horse.blue { background: var(--badge-blue); border-color: var(--badge-blue); color: #fff; }
+  .sep {
     color: var(--ink-soft);
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 600;
   }
   .odds-val {
     margin-left: auto;
@@ -229,11 +392,11 @@
     width: 100%;
     background: var(--surface);
     border-top: 1px solid var(--line);
-    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
     z-index: 10;
   }
@@ -241,43 +404,123 @@
     display: flex;
     flex-direction: column;
     line-height: 1.35;
+    flex-shrink: 0;
   }
   .cart-info .count {
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--ink);
   }
   .cart-info .range {
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--ink-soft);
   }
-  .cart-add-btn {
-    flex-shrink: 0;
+  .cart-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .cart-save-btn {
+    border: 1.5px solid var(--accent);
+    background: #fff;
+    color: var(--accent);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 11px 14px;
+    white-space: nowrap;
+  }
+  .cart-amount-btn {
     border: none;
     border-radius: 8px;
     background: var(--accent);
     color: var(--accent-ink);
     font-weight: 700;
-    font-size: 14.5px;
-    padding: 13px 26px;
+    font-size: 13px;
+    padding: 11px 16px;
+    white-space: nowrap;
   }
 </style>
 
 <div class="screen">
+  <div class="race-header">
+    <div class="race-header-top">
+      <span class="race-no">11R</span>
+      <div class="race-title-block">
+        <div class="race-title">お松の方賞3歳上牝馬（東海・北陸交流）</div>
+        <div class="race-tags">
+          <span class="tag-grade">重賞</span>
+          <span class="tag-weather"><span>☀</span></span>
+        </div>
+      </div>
+      <button type="button" class="collapse-btn" aria-label="折りたたむ">▲</button>
+    </div>
+    <div class="race-header-bottom">
+      <div class="sale-status">
+        <span class="sale-badge">発売中</span>
+        <span class="sale-deadline">締切25分前</span>
+      </div>
+      <div class="race-meta">
+        <div>曇 良 ダ 1500m 右回り 10頭</div>
+        <div>2025年5月11日(日) 発走 18:15 <span class="close-time">締切 18:10</span></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="race-tabs">
+    <div class="race-tab">
+      <div class="r-no">8R</div>
+      <div class="r-status">発売中</div>
+    </div>
+    <div class="race-tab">
+      <div class="r-no">9R</div>
+      <div class="r-status">発売中</div>
+    </div>
+    <div class="race-tab">
+      <div class="r-no">10R</div>
+      <div class="r-status">発売中</div>
+    </div>
+    <div class="race-tab active">
+      <div class="r-no">11R</div>
+      <div class="r-status">発売中</div>
+    </div>
+    <div class="race-tab all">全レース<br>一覧</div>
+  </nav>
+
+  <nav class="content-nav">
+    <button type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>
+      出馬表
+    </button>
+    <button type="button" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+      オッズ
+    </button>
+    <button type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5"/></svg>
+      予想
+    </button>
+    <button type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12v4a6 6 0 0 1-12 0V4z"/><path d="M6 6H3a3 3 0 0 0 3 4M18 6h3a3 3 0 0 1-3 4M9 20h6M12 14v6"/></svg>
+      結果
+    </button>
+  </nav>
+
   <nav class="bettype-tabs">
-    <button>3連単</button>
-    <button>3連複</button>
-    <button class="active">2連単</button>
-    <button>2連複</button>
-    <button>単勝</button>
+    <button>単勝/<br>複勝</button>
+    <button>枠連</button>
+    <button>枠単</button>
+    <button class="active">馬連</button>
+    <button>馬単</button>
     <button>ワイド</button>
+    <button>3連複</button>
+    <button>3連単</button>
   </nav>
 
   <nav class="sort-tabs">
     <button>人気順</button>
     <button>オッズ表</button>
     <button class="active">高配当順</button>
-    <button>選手から検索</button>
+    <button>馬から検索</button>
   </nav>
 
   <div class="filter-row">
@@ -319,18 +562,21 @@
       <span class="count">999通り 選択中</span>
       <span class="range">9999.9〜9999.9</span>
     </div>
-    <button type="button" class="cart-add-btn">カートに追加する</button>
+    <div class="cart-actions">
+      <button type="button" class="cart-save-btn">買い目を保存</button>
+      <button type="button" class="cart-amount-btn">金額入力へ</button>
+    </div>
   </div>
 </div>
 
 <script>
-  // rows: [left column, right column], each entry {n1, c1, n2, c2, odds, hi}
+  // rows: [left column, right column], each entry {n1, c1, n2, c2, odds, hi, hot}
   var leftRows = [
-    {i:1, n1:'2', c1:'', n2:'3', c2:'red', odds:'4.5', hi:false, hot:true},
+    {i:1, n1:'2', c1:'', n2:'4', c2:'blue', odds:'4.5', hi:false, hot:true},
     {i:2, n1:'1', c1:'', n2:'2', c2:'', odds:'9999.0', hi:true, hot:false},
     {i:3, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:true, hot:false},
     {i:4, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
-    {i:5, n1:'1', c1:'', n2:'2', c2:'', odds:'4.5', hi:false, hot:true},
+    {i:5, n1:'1', c1:'', n2:'2', c2:'', odds:'4.5', hi:true, hot:true},
     {i:6, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
     {i:7, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
     {i:8, n1:'1', c1:'', n2:'2', c2:'', odds:'48.2', hi:false, hot:false},
@@ -363,7 +609,7 @@
     return '<div class="odds-row' + (r.hi ? ' hi' : '') + '">' +
       '<span class="idx">' + r.i + '</span>' +
       '<span class="horse' + (r.c1 ? ' ' + r.c1 : '') + '">' + r.n1 + '</span>' +
-      '<span class="arrow">&#8250;</span>' +
+      '<span class="sep">-</span>' +
       '<span class="horse' + (r.c2 ? ' ' + r.c2 : '') + '">' + r.n2 + '</span>' +
       '<span class="odds-val' + (r.hot ? ' hot' : '') + '">' + r.odds + '</span>' +
       '</div>';

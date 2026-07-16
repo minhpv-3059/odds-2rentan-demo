@@ -450,6 +450,85 @@
   }
 
   /* ==========================================================
+     予想 > AI予想 (AI一覧 / 的中重視 …)
+     ========================================================== */
+  .ai-tabs {
+    display: flex; gap: 4px; padding: 10px 12px; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--line);
+  }
+  .ai-tabs button {
+    flex: 1 0 auto; min-width: 62px; border: none; background: transparent; border-radius: 18px;
+    padding: 7px 12px; font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap; cursor: pointer;
+  }
+  .ai-tabs button.active { background: #333333; color: #ffffff; }
+  .ai-panel { display: none; }
+  .ai-panel.active { display: block; }
+
+  /* single-line heading (AI短評) */
+  .ai-simple-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 12px 8px; }
+  .ai-simple-head .st { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .ai-simple-head .updated-at { font-size: 12px; color: var(--ink); }
+
+  /* title + 直近の予想実績 button */
+  .ai-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 12px 6px; }
+  .ai-title { font-size: 18px; font-weight: 700; color: var(--ink); }
+  .recent-btn {
+    border: 1px solid #333333; background: #ffffff; color: var(--ink); border-radius: 6px;
+    font-size: 11px; font-weight: 600; padding: 7px 10px; white-space: nowrap; cursor: pointer;
+  }
+  .conf-row { display: flex; align-items: center; gap: 8px; padding: 0 12px 10px; }
+  .conf { font-size: 13px; color: var(--ink); font-weight: 600; }
+  .conf .stars { color: #f2a13a; letter-spacing: 1px; }
+  .help {
+    width: 18px; height: 18px; border-radius: 50%; background: #bdbdbd; color: #ffffff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .conf-row .updated-at { margin-left: auto; font-size: 12px; color: var(--ink); }
+
+  /* orange vote button */
+  .ai-vote-btn {
+    display: block; width: calc(100% - 24px); margin: 16px 12px; height: 52px;
+    border: none; border-radius: 8px; background: #e7750c; color: #ffffff;
+    font-size: 15px; font-weight: 700; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); cursor: pointer;
+  }
+
+  /* AI買い目 */
+  .kaime { padding: 0 12px; }
+  .kaime-top { display: flex; align-items: center; gap: 8px; padding: 8px 0 4px; }
+  .kaime-top .k-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .kaime-block { border-top: 1px solid var(--line); padding: 14px 0; }
+  .kaime-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .kaime-hd .k-type { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .kaime-hd .k-pts { margin-left: auto; font-size: 13px; color: var(--ink); }
+  .kaime-hd .k-price { font-size: 13px; color: var(--ink); }
+  .k-check {
+    width: 26px; height: 26px; border-radius: 6px; background: var(--badge-green);
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .k-check .icon { width: 14px; height: 14px; color: #ffffff; }
+  .k-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .k-leg { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .k-leg .k-leg-label { width: 32px; flex-shrink: 0; font-size: 13px; color: var(--ink); padding-top: 4px; }
+  .k-leg .k-badges { flex: 1; }
+  .clear-row { display: flex; justify-content: flex-end; padding: 2px 0 0; }
+  .clear-btn { border: 1px solid #999999; background: #ffffff; border-radius: 20px; padding: 6px 22px; font-size: 12px; color: var(--ink); cursor: pointer; }
+  .kaime-total { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding: 16px 12px; }
+  .kaime-total .lb { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .kaime-total .amt { font-size: 18px; font-weight: 700; color: var(--ink); }
+
+  .disclaimer { padding: 4px 12px 16px; font-size: 11px; line-height: 1.7; color: var(--ink-soft); }
+  .disclaimer a { color: var(--link); }
+
+  .max-payout { margin: 4px 12px 8px; border: 1px solid var(--badge-green); border-radius: 8px; overflow: hidden; }
+  .max-payout .mp-head { background: #f0faf4; padding: 10px 12px; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .max-payout .mp-body { padding: 12px; }
+  .max-payout .mp-race { font-size: 13px; color: var(--ink); margin-bottom: 10px; }
+  .max-payout .mp-pay { display: flex; align-items: baseline; justify-content: space-between; }
+  .max-payout .mp-pay .lb { font-size: 13px; color: var(--ink); }
+  .max-payout .mp-pay .amt { font-size: 18px; font-weight: 700; color: var(--ink); }
+  .max-payout .mp-pay .amt .yen { font-size: 12px; font-weight: 600; margin-left: 2px; }
+
+  /* ==========================================================
      オッズ (馬連 高配当順)
      ========================================================== */
   .bettype-tabs {
@@ -846,9 +925,148 @@
       </div>
     </div>
 
-    <!-- AI予想 (placeholder) -->
+    <!-- AI予想 -->
     <div class="ysub-panel" data-ysub="ai">
-      <div class="placeholder">AI予想は準備中です。</div>
+      <nav class="ai-tabs" id="aiTabs">
+        <button class="active" data-ai="list">AI一覧</button>
+        <button data-ai="hit">的中重視</button>
+        <button data-ai="long">大穴重視</button>
+        <button data-ai="rec">回収重視</button>
+        <button data-ai="pre">直前重視</button>
+      </nav>
+
+      <!-- AI一覧 -->
+      <div class="ai-panel active" data-ai="list">
+        <div class="ai-simple-head">
+          <span class="st">AI短評：小波乱</span>
+          <span class="updated-at">15:15現在</span>
+        </div>
+        <div class="yosou-scroll">
+          <table class="yosou">
+            <thead>
+              <tr>
+                <th class="yc-my">My<br>予想印</th>
+                <th class="yc-waku">枠<br>番</th>
+                <th class="yc-num">馬<br>番</th>
+                <th class="yc-name">馬名<br>性齢/馬体重<br>騎手名（負担重量）</th>
+                <th class="yc-odds">単勝<br>オッズ</th>
+                <th class="yc-mark">的中<br>AI</th>
+                <th class="yc-mark">大穴<br>AI</th>
+                <th class="yc-mark">回収<br>AI</th>
+                <th class="yc-mark">直前<br>AI</th>
+              </tr>
+            </thead>
+            <tbody id="aiListBody"></tbody>
+          </table>
+        </div>
+        <div class="foot-actions">
+          <button type="button" class="reload-link">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+            <span>最新情報に更新する</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 的中重視 -->
+      <div class="ai-panel" data-ai="hit">
+        <div class="ai-head">
+          <span class="ai-title">的中重視AI</span>
+          <button type="button" class="recent-btn">直近の予想実績</button>
+        </div>
+        <div class="conf-row">
+          <span class="conf">自信度 <span class="stars">★☆☆</span></span>
+          <span class="help">?</span>
+          <span class="updated-at">15:15現在</span>
+        </div>
+        <div class="yosou-scroll">
+          <table class="yosou">
+            <thead>
+              <tr>
+                <th class="yc-waku">枠<br>番</th>
+                <th class="yc-num">馬<br>番</th>
+                <th class="yc-name">馬名<br>性齢/馬体重<br>騎手名（負担重量）</th>
+                <th class="yc-odds">単勝<br>オッズ</th>
+                <th class="yc-idx">AI<br>指数</th>
+                <th class="yc-mark">的中<br>AI</th>
+              </tr>
+            </thead>
+            <tbody id="aiHitBody"></tbody>
+          </table>
+        </div>
+
+        <button type="button" class="ai-vote-btn">的中率重視AI予想印で投票</button>
+
+        <div class="kaime">
+          <div class="kaime-top">
+            <span class="k-title">AI買い目</span>
+            <span class="conf">自信度 <span class="stars">★☆☆</span></span>
+            <span class="help">?</span>
+          </div>
+
+          <div class="kaime-block">
+            <div class="kaime-hd">
+              <span class="k-type">単勝</span>
+              <span class="k-pts">16点</span>
+              <span class="k-price">各100円</span>
+              <span class="k-check"><span class="icon"><svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.4709 8.38314L0.541737 5.48731C0.379237 5.32481 0.37507 5.06231 0.541737 4.89981L1.12924 4.30814C1.29174 4.14564 1.55424 4.14148 1.71674 4.30814L3.4709 6.04148C3.6334 6.20398 3.8959 6.19981 4.0584 6.04148L8.2959 1.78731C8.4584 1.62481 8.7209 1.62481 8.8834 1.78731L9.4709 2.37481C9.6334 2.53731 9.6334 2.79981 9.4709 2.96231L4.05424 8.37898C3.89174 8.54148 3.62924 8.54148 3.46674 8.37898L3.4709 8.38314Z" fill="currentColor"/></svg></span></span>
+            </div>
+            <div class="k-badges" id="tanBadges"></div>
+          </div>
+
+          <div class="kaime-block">
+            <div class="kaime-hd">
+              <span class="k-type">3連単 × 流し</span>
+              <span class="k-pts">14点</span>
+              <span class="k-price">各100円</span>
+              <span class="k-check"><span class="icon"><svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.4709 8.38314L0.541737 5.48731C0.379237 5.32481 0.37507 5.06231 0.541737 4.89981L1.12924 4.30814C1.29174 4.14564 1.55424 4.14148 1.71674 4.30814L3.4709 6.04148C3.6334 6.20398 3.8959 6.19981 4.0584 6.04148L8.2959 1.78731C8.4584 1.62481 8.7209 1.62481 8.8834 1.78731L9.4709 2.37481C9.6334 2.53731 9.6334 2.79981 9.4709 2.96231L4.05424 8.37898C3.89174 8.54148 3.62924 8.54148 3.46674 8.37898L3.4709 8.38314Z" fill="currentColor"/></svg></span></span>
+            </div>
+            <div class="k-leg"><span class="k-leg-label">1着</span><div class="k-badges"><span class="num-badge w1">1</span></div></div>
+            <div class="k-leg"><span class="k-leg-label">2着</span><div class="k-badges"><span class="num-badge w2">2</span></div></div>
+            <div class="k-leg"><span class="k-leg-label">3着</span><div class="k-badges" id="sanBadges"></div></div>
+            <div class="clear-row"><button type="button" class="clear-btn">クリア</button></div>
+          </div>
+        </div>
+
+        <div class="kaime-total">
+          <span class="lb">購入合計金額</span>
+          <span class="amt num">3,000円</span>
+        </div>
+
+        <div class="disclaimer">※掲載されている情報の内容に関しては、万全を期しておりますが、その内容の正確性および安全性を保証するものではありません。詳しくはオッズパークの<a href="#">免責事項</a>をご確認ください。</div>
+
+        <div class="max-payout">
+          <div class="mp-head">的中率重視AI予想の最大払戻金</div>
+          <div class="mp-body">
+            <div class="mp-race num">22.12.12 笠松10R 3連単</div>
+            <div class="mp-pay">
+              <span class="lb">払戻金</span>
+              <span class="amt"><span class="num">62,370</span><span class="yen">円</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="foot-actions">
+          <button type="button" class="reload-link">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+            <span>最新情報に更新する</span>
+          </button>
+        </div>
+
+        <div class="cart-bar">
+          <div class="cart-info">
+            <div class="cart-heading"><span>999通り</span><span>選択中</span></div>
+          </div>
+          <div class="cart-actions">
+            <button type="button" class="btn-save">買い目を保存</button>
+            <button type="button" class="btn-amount">金額入力へ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 大穴重視 / 回収重視 / 直前重視 (placeholders) -->
+      <div class="ai-panel" data-ai="long"><div class="placeholder">大穴重視AIは準備中です。</div></div>
+      <div class="ai-panel" data-ai="rec"><div class="placeholder">回収重視AIは準備中です。</div></div>
+      <div class="ai-panel" data-ai="pre"><div class="placeholder">直前重視AIは準備中です。</div></div>
     </div>
 
     <!-- AI指数 (placeholder) -->
@@ -881,6 +1099,15 @@
   })();
 
   /* ===================== tab switching ===================== */
+  // shared: show a fixed cart bar (+ reserve bottom padding) whenever the
+  // currently-visible leaf owns one — the オッズ tab, or 予想 > AI予想 > 的中重視.
+  window.updateStickyCart = function () {
+    function on(sel) { var el = document.querySelector(sel); return !!el && el.classList.contains('active'); }
+    var odds = on('.tab-panel[data-tab="odds"]');
+    var hit = on('.tab-panel[data-tab="yosou"]') && on('.ysub-panel[data-ysub="ai"]') && on('.ai-panel[data-ai="hit"]');
+    document.body.classList.toggle('show-cart', odds || hit);
+  };
+
   (function () {
     var nav = document.getElementById('contentNav');
     var panels = document.querySelectorAll('.tab-panel');
@@ -890,7 +1117,7 @@
       var tab = item.getAttribute('data-tab');
       nav.querySelectorAll('.nav-item').forEach(function (n) { n.classList.toggle('active', n === item); });
       panels.forEach(function (p) { p.classList.toggle('active', p.getAttribute('data-tab') === tab); });
-      document.body.classList.toggle('show-cart', tab === 'odds');
+      window.updateStickyCart();
       window.scrollTo(0, 0);
     });
 
@@ -1216,6 +1443,7 @@
       var sub = btn.getAttribute('data-ysub');
       ysubTabs.querySelectorAll('button').forEach(function (b) { b.classList.toggle('active', b === btn); });
       ysubPanels.forEach(function (p) { p.classList.toggle('active', p.getAttribute('data-ysub') === sub); });
+      window.updateStickyCart();
       window.scrollTo(0, 0);
     });
 
@@ -1275,6 +1503,128 @@
     }
     var body = document.getElementById('yosouBody');
     horses.forEach(function (h) { body.innerHTML += row(h); });
+  })();
+
+  /* ===================== 予想 > AI予想 (AI一覧 / 的中重視) ===================== */
+  (function () {
+    // nested focus-tab switching
+    var aiTabs = document.getElementById('aiTabs');
+    var aiPanels = document.querySelectorAll('.ai-panel');
+    aiTabs.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var ai = btn.getAttribute('data-ai');
+      aiTabs.querySelectorAll('button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+      aiPanels.forEach(function (p) { p.classList.toggle('active', p.getAttribute('data-ai') === ai); });
+      window.updateStickyCart();
+      window.scrollTo(0, 0);
+    });
+
+    var CHEV = '<svg class="chev" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91 1.38C3.76 1.53 3.68 1.73 3.68 1.95C3.68 2.16 3.76 2.36 3.91 2.51L9.39 7.99L3.91 13.48C3.75 13.63 3.67 13.83 3.67 14.05C3.67 14.26 3.75 14.46 3.91 14.61L4.39 15.09C4.7 15.41 5.21 15.41 5.52 15.09L12.07 8.56C12.23 8.41 12.33 8.21 12.33 7.99C12.33 7.77 12.23 7.57 12.07 7.43L5.55 0.9C5.39 0.75 5.19 0.67 4.97 0.67C4.76 0.67 4.55 0.75 4.41 0.9H4.4Z" fill="currentColor"/></svg>';
+
+    // shared runners (name / jockey identical across AI views; odds & marks differ per view)
+    var BASE = [
+      { num: 1, waku: 1, name: 'ネオアマゾネス', sexAge: '牝8', weight: '486kg(-8)', jockey: '筒井勇介', carry: '55.0' }
+    ];
+    var wakus = [2, 3, 4, 5, 6, 7, 7, 8, 8];
+    for (var i = 0; i < wakus.length; i++) {
+      BASE.push({ num: i + 2, waku: wakus[i], name: 'スタールーズベルト', sexAge: '牡7', weight: '489kg(-3)', jockey: '山田太郎', carry: '56.0' });
+    }
+
+    function nameCell(h) {
+      return '<td>' +
+        '<div class="horse-name">' + h.name + CHEV + '</div>' +
+        '<div class="horse-sub">' + h.sexAge + '/' + h.weight + '</div>' +
+        '<div class="horse-jockey">' + h.jockey + '(' + h.carry + ')</div>' +
+      '</td>';
+    }
+    // waku cell factory with rowspan grouping over a given rows array
+    function wakuGrouper(rows) {
+      var count = {}, seen = {};
+      rows.forEach(function (h) { count[h.waku] = (count[h.waku] || 0) + 1; });
+      return function (h) {
+        if (seen[h.waku]) return '';
+        seen[h.waku] = true;
+        return '<td class="waku w' + h.waku + '"' + (count[h.waku] > 1 ? ' rowspan="' + count[h.waku] + '"' : '') + '><span class="num">' + h.waku + '</span></td>';
+      };
+    }
+
+    /* ---- AI一覧 table ---- */
+    var listData = [
+      { odds: '34.4',  hit: '◎', long: '○', rec: '◎', pre: '○' },
+      { odds: '48.2',  hit: '◎', long: '○', rec: '◎', pre: '○' },
+      { odds: '8.8', hot: true, hit: '▲', long: '▲', rec: '△', pre: '△' },
+      { odds: '48.2',  hit: '○', long: '',  rec: '',  pre: '' },
+      { odds: '8.8', hot: true, hit: '◎', long: '◎', rec: '◎', pre: '◎' },
+      { odds: '48.2',  hit: '',  long: '',  rec: '',  pre: '' },
+      { odds: '48.2',  hit: '',  long: '',  rec: '',  pre: '' },
+      { odds: '144.2', hit: '',  long: '',  rec: '',  pre: '' },
+      { odds: '48.2',  hit: '',  long: '',  rec: '',  pre: '' },
+      { odds: '144.2', hit: '◎', long: '○', rec: '◎', pre: '◎' }
+    ];
+    (function () {
+      var wcell = wakuGrouper(BASE);
+      var body = document.getElementById('aiListBody');
+      BASE.forEach(function (h, idx) {
+        var d = listData[idx];
+        var html = '<tr>';
+        html += '<td class="y-my"><div class="my-box"></div></td>';
+        html += wcell(h);
+        html += '<td class="cell-num"><span class="num">' + h.num + '</span></td>';
+        html += nameCell(h);
+        html += '<td class="cell-odds"><div class="odds num' + (d.hot ? ' hot' : '') + '">' + d.odds + '</div></td>';
+        html += '<td class="y-mark">' + d.hit + '</td>';
+        html += '<td class="y-mark">' + d.long + '</td>';
+        html += '<td class="y-mark">' + d.rec + '</td>';
+        html += '<td class="y-mark">' + d.pre + '</td>';
+        html += '</tr>';
+        body.innerHTML += html;
+      });
+    })();
+
+    /* ---- 的中重視 table ---- */
+    var hitData = [
+      { odds: '34.4', mark: '注' },
+      { odds: '2.8', hot: true, mark: '◎' },
+      { odds: '2.8', hot: true, mark: '△' },
+      { odds: '41.2', mark: '' },
+      { odds: '41.2', mark: '注' },
+      { odds: '2.8', hot: true, mark: '▲' },
+      { odds: '41.2', mark: '' },
+      { odds: '41.2', mark: '' },
+      { odds: '41.2', mark: '×' },
+      { odds: '41.2', mark: '' }
+    ];
+    (function () {
+      var wcell = wakuGrouper(BASE);
+      var body = document.getElementById('aiHitBody');
+      BASE.forEach(function (h, idx) {
+        var d = hitData[idx];
+        var html = '<tr>';
+        html += wcell(h);
+        html += '<td class="cell-num"><span class="num">' + h.num + '</span></td>';
+        html += nameCell(h);
+        html += '<td class="cell-odds"><div class="odds num' + (d.hot ? ' hot' : '') + '">' + d.odds + '</div></td>';
+        html += '<td class="y-idx num">87</td>';
+        html += '<td class="y-mark">' + d.mark + '</td>';
+        html += '</tr>';
+        body.innerHTML += html;
+      });
+    })();
+
+    /* ---- AI買い目 badges (frame-coloured, cycling 1-8) ---- */
+    function badge(n) {
+      var w = ((n - 1) % 8) + 1;
+      return '<span class="num-badge w' + w + '">' + n + '</span>';
+    }
+    function fillBadges(id, from, to) {
+      var el = document.getElementById(id);
+      var html = '';
+      for (var n = from; n <= to; n++) html += badge(n);
+      el.innerHTML = html;
+    }
+    fillBadges('tanBadges', 1, 16);  // 単勝 16点
+    fillBadges('sanBadges', 3, 16);  // 3連単 3着 14点
   })();
 
   /* ===================== mini sticky header ===================== */

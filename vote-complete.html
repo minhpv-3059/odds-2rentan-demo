@@ -1,0 +1,275 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
+<title>投票完了</title>
+<style>
+  :root {
+    --ink: #333333;
+    --ink-soft: #999999;
+    --line: #dedede;
+    --line-soft: #ededed;
+    --bg-soft: #f1f1f1;
+    --orange: #ef8022;
+    --orange-dark: #e7750c;
+    --success: #1a9f5c;
+    --success-bg: #f0faf4;
+    --link: #2c73c9;
+    --badge-outline: #999999;
+    --badge-red: #e5393b;
+    --badge-yellow: #fcc539;
+    --badge-orange: #ef8b2e;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    width: 100%;
+    font-family: "Hiragino Kaku Gothic Pro", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    background: var(--bg-soft);
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  .num { font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic Pro", sans-serif; font-variant-numeric: tabular-nums; }
+  .icon { display: inline-flex; }
+  .icon svg { display: block; }
+
+  .screen { width: 100%; }
+  .gap { height: 8px; background: var(--bg-soft); }
+
+  /* ---- success banner ---- */
+  .head-block { background: #ffffff; padding: 16px 14px 6px; }
+  .success {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid var(--success);
+    border-radius: 8px;
+    background: var(--success-bg);
+    padding: 16px 14px;
+  }
+  .success .icon { width: 26px; height: 26px; color: var(--success); flex-shrink: 0; }
+  .success .msg { font-size: 19px; font-weight: 700; color: var(--success); }
+
+  .apply-date { font-size: 13px; color: var(--ink-soft); margin-top: 14px; }
+  .avail-lead { font-size: 15px; font-weight: 700; color: var(--ink); margin-top: 10px; }
+
+  /* ---- availability rows ---- */
+  .avail-rows { background: #ffffff; padding: 0 14px 6px; }
+  .avail-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .avail-row:last-child { border-bottom: none; }
+  .avail-row .ar-label { font-size: 15px; color: var(--ink); }
+  .avail-row .ar-value { font-size: 15px; color: var(--ink); }
+  .avail-row .ar-value .n { font-size: 22px; font-weight: 700; }
+
+  /* ---- bet review ---- */
+  .section { background: #ffffff; padding: 6px 14px 14px; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+  }
+  .section-head .sh-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .section-head .icon { width: 16px; height: 16px; color: var(--ink); transition: transform 0.2s ease; }
+  .section.collapsed .icon { transform: rotate(180deg); }
+  .section.collapsed .review-body { display: none; }
+
+  .bet-item { padding: 14px 0; border-top: 1px solid var(--line); }
+  .bi-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .bi-type { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .bi-race { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .bi-amount { text-align: right; flex-shrink: 0; }
+  .bi-amount .bi-count { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .bi-amount .bi-price { font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 4px; }
+  .bi-badges { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    background: #ffffff;
+    border: 1px solid var(--badge-outline);
+    color: var(--ink);
+  }
+  .badge.red { background: var(--badge-red); border-color: var(--badge-red); color: #ffffff; }
+  .badge.yellow { background: var(--badge-yellow); border-color: var(--badge-yellow); color: #151515; }
+  .badge.orange { background: var(--badge-orange); border-color: var(--badge-orange); color: #ffffff; }
+
+  .review-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 16px 0 4px;
+    border-top: 1px solid var(--line);
+  }
+  .review-link span { font-size: 16px; font-weight: 700; color: var(--ink); }
+  .review-link .icon { width: 14px; height: 14px; color: var(--ink); }
+
+  /* ---- other races ---- */
+  .other-head { background: #ffffff; padding: 16px 14px; }
+  .other-head .oh-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .other-head .oh-date { font-size: 13px; color: var(--ink); margin-top: 8px; }
+
+  .other-body { padding: 20px 14px 4px; text-align: center; }
+  .other-body .ob-note { font-size: 16px; color: var(--ink); }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 52px;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  }
+  .btn-keirin { margin-top: 16px; border: 1.5px solid var(--link); color: var(--link); }
+
+  .btn-pair { display: flex; gap: 12px; padding: 20px 14px 4px; }
+  .btn-pair .btn { flex: 1; min-width: 0; }
+  .btn-top { border: 1.5px solid var(--success); color: var(--success); }
+  .btn-home { border: 1.5px solid var(--orange); color: var(--orange-dark); }
+
+  /* ---- notes ---- */
+  .notes { padding: 16px 14px 28px; }
+  .notes p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin: 0 0 12px;
+    padding-left: 1.1em;
+    text-indent: -1.1em;
+  }
+  .notes .link-row { text-align: right; }
+  .notes a { font-size: 13px; color: var(--link); text-decoration: underline; }
+</style>
+
+<div class="screen">
+  <!-- success banner + availability -->
+  <div class="head-block">
+    <div class="success">
+      <span class="icon"><svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 1C6.37 1 1 6.37 1 13C1 19.63 6.37 25 13 25C19.63 25 25 19.63 25 13C25 6.37 19.63 1 13 1ZM11.03 18.41L6.29 13.67C5.9 13.28 5.9 12.65 6.29 12.26L7.0 11.55C7.39 11.16 8.02 11.16 8.41 11.55L11.74 14.88L17.59 9.03C17.98 8.64 18.61 8.64 19.0 9.03L19.71 9.74C20.1 10.13 20.1 10.76 19.71 11.15L12.44 18.41C12.05 18.8 11.42 18.8 11.03 18.41Z" fill="currentColor"/></svg></span>
+      <span class="msg">2件の投票を受け付けました</span>
+    </div>
+    <div class="apply-date">申込日：2025年2月20日</div>
+    <div class="avail-lead">本日まだご利用が可能です</div>
+  </div>
+
+  <div class="avail-rows">
+    <div class="avail-row">
+      <span class="ar-label">投票可能回数</span>
+      <span class="ar-value"><span class="n num">299</span>回</span>
+    </div>
+    <div class="avail-row">
+      <span class="ar-label">投票可能金額</span>
+      <span class="ar-value"><span class="n num">320</span>円</span>
+    </div>
+  </div>
+
+  <div class="gap"></div>
+
+  <!-- bet review -->
+  <div class="section" id="reviewSection">
+    <div class="section-head" id="reviewHead">
+      <span class="sh-title">投票した買い目を確認</span>
+      <span class="icon"><svg viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 0.5L15.5 8L14 9.5L8 3.5L2 9.5L0.5 8L8 0.5Z" fill="currentColor"/></svg></span>
+    </div>
+    <div class="review-body">
+      <div class="bet-item">
+        <div class="bi-head">
+          <div>
+            <div class="bi-type">3連複 ボックス</div>
+            <div class="bi-race num">24.08.06 笠松 12R</div>
+          </div>
+          <div class="bi-amount">
+            <div class="bi-count num">20通り</div>
+            <div class="bi-price num">100円</div>
+          </div>
+        </div>
+        <div class="bi-badges">
+          <span class="badge">1</span>
+          <span class="badge red">3</span>
+          <span class="badge yellow">5</span>
+          <span class="badge orange">7</span>
+        </div>
+      </div>
+
+      <div class="bet-item">
+        <div class="bi-head">
+          <div>
+            <div class="bi-type">3連複 ボックス</div>
+            <div class="bi-race num">24.08.06 金沢 11R</div>
+          </div>
+          <div class="bi-amount">
+            <div class="bi-count num">10通り</div>
+            <div class="bi-price num">100円</div>
+          </div>
+        </div>
+        <div class="bi-badges">
+          <span class="badge">1</span>
+          <span class="badge red">3</span>
+          <span class="badge yellow">5</span>
+          <span class="badge orange">7</span>
+        </div>
+      </div>
+
+      <div class="review-link">
+        <span>投票照会へ</span>
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91 1.38C3.76 1.53 3.68 1.73 3.68 1.95C3.68 2.16 3.76 2.36 3.91 2.51L9.39 7.99L3.91 13.48C3.75 13.63 3.67 13.83 3.67 14.05C3.67 14.26 3.75 14.46 3.91 14.61L4.39 15.09C4.7 15.41 5.21 15.41 5.52 15.09L12.07 8.56C12.23 8.41 12.33 8.21 12.33 7.99C12.33 7.77 12.23 7.57 12.07 7.43L5.55 0.9C5.39 0.75 5.19 0.67 4.97 0.67C4.76 0.67 4.55 0.75 4.41 0.9H4.4Z" fill="currentColor"/></svg></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap"></div>
+
+  <!-- other races -->
+  <div class="other-head">
+    <div class="oh-title">他のレースを探す</div>
+    <div class="oh-date num">2025年2月20日　笠松</div>
+  </div>
+
+  <div class="other-body">
+    <div class="ob-note">本日の地方競馬は終了しました</div>
+    <button type="button" class="btn btn-keirin">競輪の開催中のレースを探す</button>
+  </div>
+
+  <div class="btn-pair">
+    <button type="button" class="btn btn-top">競馬TOPへ</button>
+    <button type="button" class="btn btn-home">ホームへ</button>
+  </div>
+
+  <!-- notes -->
+  <div class="notes">
+    <p>※ お申込みになった投票券は、競馬主催者が発売する投票券の全発売金と合算された時点で、売買契約が成立します。</p>
+    <p>※ 投票券は、当サービスの規約に従って取扱いいたします。</p>
+    <div class="link-row"><a href="#">特定商取引法に基づく表示</a></div>
+  </div>
+</div>
+
+<script>
+  // collapse / expand the bet review section
+  document.getElementById('reviewHead').addEventListener('click', function () {
+    document.getElementById('reviewSection').classList.toggle('collapsed');
+  });
+</script>

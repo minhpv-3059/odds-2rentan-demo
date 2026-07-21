@@ -1638,6 +1638,17 @@
     window.addEventListener('scroll', updateMiniHeader, { passive: true });
     updateMiniHeader();
   })();
+  /* ===================== 自信度 help (?) → native modal ===================== */
+  (function () {
+    document.querySelectorAll('.help').forEach(function (el) {
+      el.addEventListener('click', function () {
+        if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+          // Tên event phải khớp addJavaScriptHandler bên app.
+          window.flutter_inappwebview.callHandler('showConfidenceIndex');
+        }
+      });
+    });
+  })();
     /* ===================== 予想印投票 → native 投票タブ ===================== */
   (function () {
     var buttons = document.querySelectorAll('.vote-actions button');

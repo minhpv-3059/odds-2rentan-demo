@@ -54,16 +54,19 @@
 
   function detectContext() {
     var parts = location.pathname.split('/').filter(Boolean);
-    var game = 'keiba';
+    var game = 'keiba', gameIdx = -1;
     for (var i = 0; i < parts.length; i++) {
-      if (GAMES.indexOf(parts[i]) >= 0) { game = parts[i]; break; }
+      if (GAMES.indexOf(parts[i]) >= 0) { game = parts[i]; gameIdx = i; break; }
     }
+    // Mount prefix = everything before the game segment. Empty at domain root
+    // (local server), '/odds-2rentan-demo' under GitHub Pages, etc.
+    var prefix = gameIdx > 0 ? '/' + parts.slice(0, gameIdx).join('/') : '';
     var routeFile = null;
     for (var j = parts.length - 1; j >= 0; j--) {
       if (/\.do$/.test(parts[j])) { routeFile = parts[j]; break; }
     }
     var info = ROUTES[routeFile] || ROUTES['SpRaceInfo.do'];
-    return { game: game, tab: info.tab, sub: info.sub };
+    return { game: game, prefix: prefix, tab: info.tab, sub: info.sub };
   }
 
   var ctx = detectContext();
@@ -72,7 +75,7 @@
   }
   window.PAGE_CTX = ctx;
 
-  function href(routeFile) { return '/' + ctx.game + '/' + ROUTES[routeFile].path; }
+  function href(routeFile) { return ctx.prefix + '/' + ctx.game + '/' + ROUTES[routeFile].path + '/'; }
 
   /* ---------- shared chrome markup ---------- */
   var CONTENT_NAV = [

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>資金分配</title>
+<style>
+  :root {
+    --black: #333333;
+    --gray-border: #dedede;
+    --orange: #e7750c;
+    --green: #00943c;
+    --brand: #1a9f5c;
+    --font-jp: "Hiragino Kaku Gothic ProN", "Hiragino Kaku Gothic Pro", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-num: -apple-system, "SF Pro", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font-jp); color: var(--black); background: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  .modal-head {
+    display: flex; align-items: center; justify-content: center;
+    position: relative; padding: 20px 16px 16px;
+  }
+  .modal-head .title { font-size: 16px; font-weight: 600; }
+  .modal-head .close {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; padding: 4px;
+  }
+  .body { padding: 8px 16px 24px; }
+  .label { font-size: 12px; font-weight: 300; margin-bottom: 8px; }
+  .input-row { display: flex; align-items: center; gap: 8px; }
+  .input-row input {
+    flex: 1; height: 44px; border: 1px solid var(--gray-border); border-radius: 8px;
+    text-align: right; padding: 0 12px; font-family: var(--font-num);
+    font-size: 16px; color: var(--black); min-width: 0;
+  }
+  .input-row input:focus { outline: none; border-color: var(--brand); }
+  .input-row .suffix { font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .input-row .submit {
+    background: var(--orange); color: #fff; border: none; border-radius: 4px;
+    height: 44px; padding: 0 20px; font-family: var(--font-jp);
+    font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .input-row .submit:disabled { background: #dedede; color: #999; cursor: default; }
+</style>
+<script>
+  // Per-game brand colour inferred from the URL path (keiba/keirin/autorace).
+  (function () {
+    var BRAND = { keiba: '#1a9f5c', keirin: '#0180b6', autorace: '#9674e0' };
+    var parts = location.pathname.split('/').filter(Boolean);
+    for (var i = 0; i < parts.length; i++) {
+      if (BRAND[parts[i]]) {
+        document.documentElement.style.setProperty('--brand', BRAND[parts[i]]);
+        break;
+      }
+    }
+  })();
+</script>
+</head>
+<body>
+
+<div class="modal-head">
+  <span class="title">資金分配</span>
+  <button class="close" id="closeBtn" aria-label="閉じる">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"><path d="M2 2l12 12M14 2L2 14"/></svg>
+  </button>
+</div>
+<div class="body">
+  <p class="label" id="modeLabel">すべての買い目の金額を一括入力</p>
+  <div class="input-row">
+    <input type="text" inputmode="numeric" id="amountInput" value="1">
+    <span class="suffix">00円</span>
+    <button class="submit" id="submitBtn">分配</button>
+  </div>
+</div>
+
+<script>
+  // Mode theo spec 資金分配: 1=投票合計金額から設定, 2=希望払戻金から設定, 3=一括入力
+  const MODE_LABELS = {
+    1: '投票合計金額から設定',
+    2: '希望払戻金から設定',
+    3: 'すべての買い目の金額を一括入力',
+  };
+  const params = new URLSearchParams(location.search);
+  const mode = Number(params.get('mode')) || 3;
+  document.getElementById('modeLabel').textContent = MODE_LABELS[mode] || MODE_LABELS[3];
+
+  // Web→Native (guideline 03): callHandler('NativeApp', json) trả về Promise.
+  const sendToNative = async (action, payload) => {
+    const requestData = { action, payload: payload || {} };
+    if (window.flutter_inappwebview &&
+        typeof window.flutter_inappwebview.callHandler === 'function') {
+      return await window.flutter_inappwebview.callHandler(
+        'NativeApp', JSON.stringify(requestData));
+    }
+    console.log('[mock-bridge] flutter_inappwebview not available:', JSON.stringify(requestData));
+    return null;
+  };
+
+  const input = document.getElementById('amountInput');
+  const submit = document.getElementById('submitBtn');
+  const syncState = () => {
+    submit.disabled = input.value.trim() === '' || Number.isNaN(Number(input.value));
+  };
+  input.addEventListener('input', syncState);
+  syncState();
+
+  submit.addEventListener('click', () => {
+    // Native nhan amountInputConfirmedHandler -> dong sheet -> ban setAllocationAmount
+    // xuong webview chinh (payload giu nguyen {amount, mode} theo Bridge Contract).
+    sendToNative('amountInputConfirmedHandler', { amount: Number(input.value), mode });
+  });
+  document.getElementById('closeBtn').addEventListener('click', () => {
+    sendToNative('closeModal', {});
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
+<title>金沢 11R 出走表 前5走(縦)</title>
+<link rel="stylesheet" href="/assets/common.css">
+
+<div class="screen">
+  <!-- 出走表 > 前5走(縦) -->
+  <div id="p5List"></div>
+
+  <div class="foot-actions">
+    <button type="button" class="reload-link">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+      <span>最新情報に更新する</span>
+    </button>
+  </div>
+
+  <!-- floating vertical horse pager -->
+  <div class="hpager" id="hpager">
+    <button class="hp-up" id="hpUp" disabled aria-label="前の馬">
+      <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 4.5C8.2 4.5 8.4 4.58 8.55 4.73L15.1 11.28C15.41 11.6 15.41 12.1 15.1 12.41L14.62 12.89C14.31 13.2 13.8 13.2 13.49 12.89L8 7.4L2.51 12.89C2.2 13.2 1.69 13.2 1.38 12.89L0.9 12.41C0.59 12.1 0.59 11.6 0.9 11.28L7.45 4.73C7.6 4.58 7.8 4.5 8 4.5Z" fill="currentColor"/></svg></span>
+    </button>
+    <div class="hp-num num" id="hpNum">1</div>
+    <button class="hp-down" id="hpDown" aria-label="次の馬">
+      <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 11.5C7.8 11.5 7.6 11.42 7.45 11.27L0.9 4.72C0.59 4.4 0.59 3.9 0.9 3.59L1.38 3.11C1.69 2.8 2.2 2.8 2.51 3.11L8 8.6L13.49 3.11C13.8 2.8 14.31 2.8 14.62 3.11L15.1 3.59C15.41 3.9 15.41 4.4 15.1 4.72L8.55 11.27C8.4 11.42 8.2 11.5 8 11.5Z" fill="currentColor"/></svg></span>
+    </button>
+  </div>
+</div>
+
+<script src="/assets/common.js"></script>
+<script>
+  /* ===================== 出走表 > 前5走(縦) ===================== */
+  (function () {
+    var CHEV = '<span class="chev"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91 1.38C3.76 1.53 3.68 1.73 3.68 1.95C3.68 2.16 3.76 2.36 3.91 2.51L9.39 7.99L3.91 13.48C3.75 13.63 3.67 13.83 3.67 14.05C3.67 14.26 3.75 14.46 3.91 14.61L4.39 15.09C4.7 15.41 5.21 15.41 5.52 15.09L12.07 8.56C12.23 8.41 12.33 8.21 12.33 7.99C12.33 7.77 12.23 7.57 12.07 7.43L5.55 0.9C5.39 0.75 5.19 0.67 4.97 0.67C4.76 0.67 4.55 0.75 4.41 0.9H4.4Z" fill="currentColor"/></svg></span>';
+    var LABELS = ['前走', '2走前', '3走前', '4走前', '5走前'];
+
+    // a reusable "placeholder" past race (matches the mock's repeated rows)
+    function tmplRace(fin, ord, agariColor, flag) {
+      return {
+        fin: fin, ord: ord, date: '22.11.11', venue: '帯広5R', dist: 'ダ 200', cond: '良',
+        name: 'リボン賞3歳上2勝クラスリボン賞3歳…', time: '2:02.7', agari: '38.4',
+        agariColor: agariColor || '', corner: '1-12-11', flag: flag || '',
+        weight: '1036kg', jockey: '山田太郎63.0', field: '10頭3番7人', winner: 'ヤマニンエイドロン', margin: '1.9'
+      };
+    }
+
+    var horses = [
+      {
+        num: 1, waku: 1, name: 'ネオアマゾネス', sexAge: '牝8', weight: '489kg(-3)',
+        jockey: '筒井勇(55.0)', jockey2: '',
+        stat: { all: '8-5-5-46', ta: '8-5-5-45', rate2: '.203', jou: '0-0-0-1', omo: '6-5-3-29', rate3: '.281' },
+        races: [
+          { fin: 2, ord: '2着', date: '25.04.17', venue: '笠松9R', dist: 'ダ 1400', cond: '良',
+            name: 'つつじ特別A3特別', time: '1:30.0', agari: '38.4', agariColor: 'g', corner: '4-3-2', flag: '',
+            weight: '494kg', jockey: '筒井勇55.0', field: '5頭5番2人', winner: 'ラブアンバジョ', margin: '0.1' },
+          { fin: 1, ord: '1着', date: '25.04.02', venue: '帯広9R', dist: 'ダ 1600', cond: '良',
+            name: '苗代桜特別B2特別', time: '1:43.1', agari: '40.8', agariColor: '', corner: '1-1-1', flag: '',
+            weight: '491kg', jockey: '加藤聡55.0', field: '8頭1番6人', winner: 'フェールデレーヴ', margin: '0.4' },
+          { fin: 0, ord: '7着', date: '25.03.07', venue: '笠松11R', dist: 'ダ 1600', cond: '良',
+            name: '養老の滝特別A2特別', time: '1:47.7', agari: '41.4', agariColor: '', corner: '9-8-8', flag: '',
+            weight: '486kg', jockey: '加藤聡54.0', field: '9頭4番9人', winner: 'グスタール', margin: '2.2' },
+          { fin: 3, ord: '3着', date: '25.02.20', venue: '笠松9R', dist: 'ダ 1400', cond: '良',
+            name: 'アネモネ特別A2特別（a）牝馬', time: '1:31.1', agari: '39.7', agariColor: '', corner: '4-2-3', flag: '',
+            weight: '485kg', jockey: '加藤聡54.0', field: '7頭4番3人', winner: 'ニホンピロポート', margin: '0.4' },
+          { fin: 0, ord: '7着', date: '25.01.23', venue: '笠松9R', dist: 'ダ 1600', cond: '良',
+            name: '銀華特別A3特別', time: '1:46.1', agari: '39.5', agariColor: '', corner: '2-5-7', flag: '',
+            weight: '1036kg', jockey: '塚本征54.0', field: '10頭5番6人', winner: 'ヴェッツラー', margin: '2.5' }
+        ]
+      }
+    ];
+
+    // horses 2-10: placeholder blocks (matching the mock), varying frame + finish colour of the top run
+    var wakus = [2, 3, 4, 5, 6, 7, 7, 8, 8];
+    var topFin = [3, 1, 2, 0, 3, 1, 0, 2, 0];
+    for (var i = 0; i < wakus.length; i++) {
+      var num = i + 2;
+      var tf = topFin[i];
+      var topOrd = tf === 0 ? '6着' : tf + '着';
+      horses.push({
+        num: num, waku: wakus[i], name: 'スタールーズベルト', sexAge: '牡7', weight: '489kg(-3)',
+        jockey: '山田太郎(56.0)', jockey2: num === 2 ? '山田太郎(取消) (56.0)' : '',
+        stat: { all: '1-1-0-6', ta: '1-1-0-4', rate2: '.250', jou: '1-1-0-6', omo: '1-1-0-4', rate3: '.250' },
+        races: [
+          tmplRace(tf, topOrd, tf === 2 ? 'b' : (tf === 3 ? 'g' : ''), 'F'),
+          tmplRace(0, '6着'), tmplRace(0, '6着'), tmplRace(0, '6着'), tmplRace(0, '6着')
+        ]
+      });
+    }
+
+    function statRow(s) {
+      return '<div class="p5-row p5-stat">' +
+        '<div class="p5-label">成績</div>' +
+        '<div class="col">' +
+          '<div class="st"><span class="lb">全</span><span class="num">' + s.all + '</span></div>' +
+          '<div class="st"><span class="lb">他</span><span class="num">' + s.ta + '</span></div>' +
+          '<div class="st"><span class="lb">連対率</span><span class="num">' + s.rate2 + '</span></div>' +
+        '</div>' +
+        '<div class="col">' +
+          '<div class="st"><span class="lb">場</span><span class="num">' + s.jou + '</span></div>' +
+          '<div class="st"><span class="lb">重</span><span class="num">' + s.omo + '</span></div>' +
+          '<div class="st"><span class="lb">3連対率</span><span class="num">' + s.rate3 + '</span></div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function raceRow(label, r) {
+      var finClass = r.fin === 1 ? ' fin1' : r.fin === 2 ? ' fin2' : r.fin === 3 ? ' fin3' : '';
+      var agariCls = r.agariColor === 'g' ? ' g' : r.agariColor === 'b' ? ' b' : '';
+      return '<div class="p5-row p5-race' + finClass + '">' +
+        '<div class="p5-label">' + label + '</div>' +
+        '<div class="p5-date">' +
+          '<div class="fin">' + r.ord + '</div>' +
+          '<div class="d-line num">' + r.date + '</div>' +
+          '<div class="d-line">' + r.venue + '</div>' +
+          '<div class="d-line">' + r.dist + '</div>' +
+          '<div class="d-line">' + r.cond + '</div>' +
+        '</div>' +
+        '<div class="p5-main">' +
+          '<div class="m-name"><span class="nm">' + r.name + '</span>' + CHEV + '</div>' +
+          '<div class="m-time num">' + r.time + '(<span class="agari' + agariCls + '">' + r.agari + '</span>)' + r.corner + (r.flag ? ' <span class="flag">' + r.flag + '</span>' : '') + '</div>' +
+          '<div class="m-detail num">' + r.weight + '/' + r.jockey + '/' + r.field + '</div>' +
+          '<div class="m-winner">' + r.winner + '(' + r.margin + ')</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function horseCard(h) {
+      var html = '<div class="p5-card" data-horse="' + h.num + '">';
+      html += '<div class="p5-row p5-head"><div class="p5-c-waku">枠番</div><div class="p5-c-uma">馬番</div><div class="p5-c-name">馬名</div></div>';
+      html += '<div class="p5-row p5-horse">' +
+        '<div class="waku w' + h.waku + '"><span class="num">' + h.waku + '</span></div>' +
+        '<div class="uma"><span class="num">' + h.num + '</span></div>' +
+        '<div class="hinfo">' +
+          '<div class="p5-hname">' + h.name + CHEV + '</div>' +
+          '<div class="p5-hsub">' + h.sexAge + '/' + h.weight + '</div>' +
+          '<div class="p5-hjockey">' + h.jockey + '</div>' +
+          (h.jockey2 ? '<div class="p5-hjockey cancel-j">' + h.jockey2 + '</div>' : '') +
+        '</div>' +
+      '</div>';
+      html += statRow(h.stat);
+      for (var i = 0; i < h.races.length; i++) html += raceRow(LABELS[i], h.races[i]);
+      html += '</div>';
+      return html;
+    }
+
+    var list = document.getElementById('p5List');
+    horses.forEach(function (h) { list.innerHTML += horseCard(h); });
+
+    /* ---- floating vertical horse pager ---- */
+    var cards = list.querySelectorAll('.p5-card');
+    var cur = 0;
+    var hpNum = document.getElementById('hpNum');
+    var hpUp = document.getElementById('hpUp');
+    var hpDown = document.getElementById('hpDown');
+    function sync() {
+      hpNum.textContent = cards[cur].getAttribute('data-horse');
+      hpUp.disabled = cur === 0;
+      hpDown.disabled = cur === cards.length - 1;
+    }
+    function goto(idx) {
+      if (idx < 0 || idx >= cards.length) return;
+      cur = idx;
+      cards[cur].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      sync();
+    }
+    hpUp.addEventListener('click', function () { goto(cur - 1); });
+    hpDown.addEventListener('click', function () { goto(cur + 1); });
+    sync();
+  })();
+</script>

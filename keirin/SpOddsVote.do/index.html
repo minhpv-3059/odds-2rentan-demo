@@ -1,0 +1,132 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
+<title>金沢 11R オッズ</title>
+<link rel="stylesheet" href="/assets/common.css">
+
+<div class="screen">
+  <!-- ========================= オッズ ========================= -->
+  <!-- 券種 / 表示順 の小タブはパラメータで切替（params は後日追加）。 -->
+  <nav class="bettype-tabs" data-group>
+    <button>単勝/<br>複勝</button>
+    <div class="bettype-divider"></div>
+    <button>枠連</button>
+    <div class="bettype-divider"></div>
+    <button>枠単</button>
+    <div class="bettype-divider"></div>
+    <button class="active">馬連</button>
+    <div class="bettype-divider"></div>
+    <button>馬単</button>
+    <div class="bettype-divider"></div>
+    <button>ワイド</button>
+    <div class="bettype-divider"></div>
+    <button>3連複</button>
+    <div class="bettype-divider"></div>
+    <button>3連単</button>
+  </nav>
+
+  <nav class="sort-tabs" data-group>
+    <button>人気順</button>
+    <button>オッズ表</button>
+    <button class="active">高配当順</button>
+    <button>馬から検索</button>
+  </nav>
+
+  <div class="filter-row">
+    <span class="filter-chip">
+      <span class="checkbox"><span class="icon"><svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.4709 8.38314L0.541737 5.48731C0.379237 5.32481 0.37507 5.06231 0.541737 4.89981L1.12924 4.30814C1.29174 4.14564 1.55424 4.14148 1.71674 4.30814L3.4709 6.04148C3.6334 6.20398 3.8959 6.19981 4.0584 6.04148L8.2959 1.78731C8.4584 1.62481 8.7209 1.62481 8.8834 1.78731L9.4709 2.37481C9.6334 2.53731 9.6334 2.79981 9.4709 2.96231L4.05424 8.37898C3.89174 8.54148 3.62924 8.54148 3.46674 8.37898L3.4709 8.38314Z" fill="currentColor" fill-opacity="0.3"/></svg></span></span>
+      <span>オッズで絞る</span>
+    </span>
+    <span class="updated-at">15:15現在</span>
+  </div>
+
+  <div class="odds-tables" id="oddsTables"></div>
+
+  <div class="action-row">
+    <button type="button">クリア</button>
+    <button type="button">ページ内全選択</button>
+  </div>
+
+  <div class="pager">
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.2667 0.9L15.7533 1.38C15.9067 1.53333 15.9867 1.73333 15.9867 1.94667C15.9867 2.16 15.9067 2.36 15.7533 2.51333L10.2733 7.99333L15.76 13.48C15.9133 13.6333 15.9933 13.8333 15.9933 14.0467C15.9933 14.26 15.9133 14.46 15.76 14.6133L15.28 15.0933C14.9667 15.4067 14.46 15.4067 14.1467 15.0933L7.59333 8.56C7.44 8.40667 7.33333 8.20667 7.33333 7.99333C7.33333 7.77333 7.44 7.57333 7.59333 7.42667L14.12 0.9C14.2733 0.746667 14.48 0.666667 14.6933 0.666667C14.9067 0.666667 15.1133 0.746667 15.26 0.9H15.2667Z" fill="currentColor"/><path d="M7.93333 0.9L8.42 1.38C8.57333 1.53333 8.65333 1.73333 8.65333 1.94667C8.65333 2.16 8.57333 2.36 8.42 2.51333L2.94 7.99333L8.42667 13.48C8.58 13.6333 8.66 13.8333 8.66 14.0467C8.66 14.26 8.58 14.46 8.42667 14.6133L7.94667 15.0933C7.63333 15.4067 7.12667 15.4067 6.81333 15.0933L0.26 8.56C0.106666 8.40667 0 8.20667 0 7.99333C0 7.77333 0.106666 7.57333 0.26 7.42667L6.78667 0.9C6.94 0.746667 7.14667 0.666667 7.36 0.666667C7.57333 0.666667 7.78 0.746667 7.92667 0.9H7.93333Z" fill="currentColor"/></svg></span>
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.0333 0.666667C10.82 0.666667 10.6133 0.746667 10.46 0.9L3.92667 7.42667C3.77333 7.58 3.66667 7.78 3.66667 7.99333C3.66667 8.21333 3.77333 8.41333 3.92667 8.56667L10.48 15.1C10.7933 15.4133 11.3 15.4133 11.6133 15.1L12.0933 14.62C12.2467 14.4667 12.3267 14.2667 12.3267 14.0533C12.3267 13.84 12.2467 13.64 12.0933 13.4867L6.60667 8L12.0867 2.51333C12.24 2.36 12.32 2.16 12.32 1.94667C12.32 1.73333 12.24 1.53333 12.0867 1.38L11.6 0.9C11.4467 0.746667 11.2467 0.666667 11.0333 0.666667Z" fill="currentColor"/></svg></span>
+    <select>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+    </select>
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91333 1.38C3.76 1.53333 3.68 1.73333 3.68 1.94667C3.68 2.16 3.76 2.36 3.91333 2.51333L9.39333 7.99333L3.90667 13.48C3.75333 13.6333 3.67333 13.8333 3.67333 14.0467C3.67333 14.26 3.75333 14.46 3.90667 14.6133L4.38667 15.0933C4.7 15.4067 5.20667 15.4067 5.52 15.0933L12.0733 8.56C12.2267 8.40667 12.3333 8.20667 12.3333 7.99333C12.3333 7.77333 12.2267 7.57333 12.0733 7.42667L5.54667 0.9C5.39333 0.746667 5.18667 0.666667 4.97333 0.666667C4.76 0.666667 4.55333 0.746667 4.40667 0.9H4.4Z" fill="currentColor"/></svg></span>
+    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.726667 0.9L0.24 1.38C0.0866668 1.53333 0.00666682 1.73333 0.00666682 1.94667C0.00666682 2.16 0.0866668 2.36 0.24 2.51333L5.72 7.99333L0.233333 13.48C0.0799999 13.6333 0 13.8333 0 14.0467C0 14.26 0.0799999 14.46 0.233333 14.6133L0.713333 15.0933C1.02667 15.4067 1.53333 15.4067 1.84667 15.0933L8.4 8.56C8.55333 8.40667 8.66 8.20667 8.66 7.99333C8.66 7.77333 8.55333 7.57333 8.4 7.42667L1.87333 0.9C1.72 0.746667 1.51333 0.666667 1.3 0.666667C1.08667 0.666667 0.88 0.746667 0.733333 0.9H0.726667Z" fill="currentColor"/><path d="M8.06 0.9L7.57333 1.38C7.42 1.53333 7.34 1.73333 7.34 1.94667C7.34 2.16 7.42 2.36 7.57333 2.51333L13.0533 7.99333L7.56667 13.48C7.41333 13.6333 7.33333 13.8333 7.33333 14.0467C7.33333 14.26 7.41333 14.46 7.56667 14.6133L8.04667 15.0933C8.36 15.4067 8.86667 15.4067 9.18 15.0933L15.7333 8.56C15.8867 8.40667 15.9933 8.20667 15.9933 7.99333C15.9933 7.77333 15.8867 7.57333 15.7333 7.42667L9.20667 0.9C9.05333 0.746667 8.84667 0.666667 8.63333 0.666667C8.42 0.666667 8.21333 0.746667 8.06667 0.9H8.06Z" fill="currentColor"/></svg></span>
+  </div>
+
+  <button type="button" class="reload-link">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+    <span>最新情報に更新する</span>
+  </button>
+
+  <div class="cart-bar">
+    <div class="cart-info">
+      <div class="cart-heading"><span>999通り</span><span>選択中</span></div>
+      <div class="cart-range">9999.9〜9999.9</div>
+    </div>
+    <div class="cart-actions">
+      <button type="button" class="btn-save">買い目を保存</button>
+      <button type="button" class="btn-amount">金額入力へ</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/common.js"></script>
+<script>
+  /* ===================== オッズ (odds table) ===================== */
+  // オッズ画面ではカートバーを常時表示。
+  window.setCart(true);
+
+  // 券種 / 表示順の小タブ（single-select）。パラメータ連動は後日実装。
+  document.querySelectorAll('[data-group]').forEach(function (group) {
+    group.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      group.querySelectorAll('button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+    });
+  });
+
+  (function () {
+    var SEP_SVG = '<svg viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.66667 3.66667C1.66667 3.48257 1.78274 3.33333 1.92593 3.33333H6.07407C6.21726 3.33333 6.33333 3.48257 6.33333 3.66667V4.33333C6.33333 4.51743 6.21726 4.66667 6.07407 4.66667H1.92593C1.78274 4.66667 1.66667 4.51743 1.66667 4.33333V3.66667Z" fill="currentColor"/></svg>';
+    function defaultRow(i) { return { i: i, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: false, hot: false }; }
+
+    var rows1to25 = [];
+    for (var i = 1; i <= 25; i++) rows1to25.push(defaultRow(i));
+    rows1to25[0] = { i: 1, n1: '2', c1: 'gray', n2: '4', c2: 'blue', odds: '4.5', hi: false, hot: true };
+    rows1to25[1] = { i: 2, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '9999.0', hi: true, hot: false };
+    rows1to25[2] = { i: 3, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: true, hot: false };
+    rows1to25[4] = { i: 5, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '4.5', hi: true, hot: true };
+
+    var rows26to50 = [];
+    for (var j = 26; j <= 50; j++) rows26to50.push(defaultRow(j));
+    rows26to50[0] = { i: 26, n1: '5', c1: 'yellow', n2: '6', c2: 'green', odds: '37.1', hi: false, hot: false };
+
+    function rowHTML(r) {
+      return '<div class="odds-tr">' +
+        '<div class="odds-th' + (r.hi ? ' hi' : '') + '"><span class="num">' + r.i + '</span></div>' +
+        '<div class="odds-td' + (r.hi ? ' hi' : '') + '">' +
+          '<div class="badges">' +
+            '<span class="badge' + (r.c1 ? ' ' + r.c1 : '') + '">' + r.n1 + '</span>' +
+            '<span class="sep">' + SEP_SVG + '</span>' +
+            '<span class="badge' + (r.c2 ? ' ' + r.c2 : '') + '">' + r.n2 + '</span>' +
+          '</div>' +
+          '<span class="odds-val num' + (r.hot ? ' hot' : '') + '">' + r.odds + '</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    var wrap = document.getElementById('oddsTables');
+    var left = document.createElement('div');
+    var right = document.createElement('div');
+    left.className = 'odds-table';
+    right.className = 'odds-table';
+    rows1to25.forEach(function (r) { left.innerHTML += rowHTML(r); });
+    rows26to50.forEach(function (r) { right.innerHTML += rowHTML(r); });
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+  })();
+</script>

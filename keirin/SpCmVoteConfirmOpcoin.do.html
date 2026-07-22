@@ -25,12 +25,11 @@
     --font-num: -apple-system, "SF Pro", "Helvetica Neue", Arial, sans-serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { background: #d5d5d5; }
+  html { background: var(--gray-bg); }
   body {
     font-family: var(--font-jp);
     color: var(--black);
-    max-width: 375px;
-    margin: 0 auto;
+    width: 100%;
     background: var(--gray-bg);
     -webkit-font-smoothing: antialiased;
   }
@@ -233,8 +232,7 @@
   /* ---------- sticky footer (spec Block H): LUÔN neo ở đáy ---------- */
   /* Luôn hiển thị cố định ở bottom, KHÔNG nâng theo bàn phím. */
   .sticky-footer {
-    position: fixed; left: 50%; bottom: 0; width: 100%; max-width: 375px;
-    transform: translateX(-50%);
+    position: fixed; left: 0; right: 0; bottom: 0;
     background: #fff; box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.18);
     z-index: 100;
   }

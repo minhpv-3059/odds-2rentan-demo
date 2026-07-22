@@ -42,6 +42,8 @@
 
   /* ---------- route + game inference ---------- */
   var GAMES = ['keiba', 'keirin', 'autorace'];
+  // per-game primary/brand colour (race-no badge + active race tab)
+  var BRAND = { keiba: '#1a9f5c', keirin: '#0180b6', autorace: '#9674e0' };
   // route file -> { tab, sub, path } (path is relative to the game root)
   var ROUTES = {
     'SpRaceInfo.do':       { tab: 'shutuba', sub: 'basic',  path: 'SpRaceInfo.do' },
@@ -214,6 +216,9 @@
 
   /* ---------- boot ---------- */
   function boot() {
+    if (BRAND[ctx.game]) {
+      document.documentElement.style.setProperty('--brand', BRAND[ctx.game]);
+    }
     renderChrome();
     document.title = '金沢 11R';
     postToNative('setTitle', { title: '金沢 11R' });

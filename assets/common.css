@@ -15,6 +15,8 @@
   --odds-red: #e83d3d;
   --race-teal: #0e6b5c;
   --race-green: #1a9f5c;
+  /* per-game primary/brand colour (overridden per game by common.js) */
+  --brand: #1a9f5c;
   --sale-red: #e2231d;
   --cancel-bg: #d9d9d9;
   /* finish-position row tints */
@@ -90,7 +92,7 @@ body.show-cart .screen { padding-bottom: 76px; }
 .race-no {
   grid-column: 1; grid-row: 1;
   align-self: start;
-  background: var(--race-green);
+  background: var(--brand);
   color: #ffffff;
   font-weight: 700; font-size: 20px;
   border-radius: 8px;
@@ -133,7 +135,7 @@ body.show-cart .screen { padding-bottom: 76px; }
 }
 .race-tab .r-no { font-weight: 700; font-size: 14px; color: var(--ink); }
 .race-tab .r-status { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
-.race-tab.active { background: var(--race-green); border-color: var(--race-green); }
+.race-tab.active { background: var(--brand); border-color: var(--brand); }
 .race-tab.active .r-no, .race-tab.active .r-status { color: #ffffff; }
 .race-tab.done { opacity: 0.55; }
 .race-tab.all {
@@ -632,6 +634,6 @@ table.yosou .horse-name { font-size: 13px; }
 .game-card .g-name { font-size: 17px; font-weight: 700; color: var(--ink); }
 .game-card .g-en { font-size: 12px; color: var(--ink-soft); }
 .game-card .g-arrow { width: 16px; height: 16px; color: var(--ink-soft); flex-shrink: 0; }
-.game-card.keiba    { border-left: 5px solid var(--race-green); }
-.game-card.keirin   { border-left: 5px solid var(--badge-blue); }
-.game-card.autorace { border-left: 5px solid var(--waku7); }
+.game-card.keiba    { border-left: 5px solid #1a9f5c; }
+.game-card.keirin   { border-left: 5px solid #0180b6; }
+.game-card.autorace { border-left: 5px solid #9674e0; }

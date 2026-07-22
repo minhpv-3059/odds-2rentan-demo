@@ -1,0 +1,160 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
+<title>盛岡 レース払戻金一覧</title>
+<link rel="stylesheet" href="../assets/common.css">
+
+<div class="screen">
+  <div class="refund">
+    <h1 class="rf-title">盛岡レース払戻金一覧</h1>
+
+    <!-- 開催日 + 全レース一覧に切替 -->
+    <div class="rf-subhead">
+      <button type="button" class="rf-date" data-action="calendar">
+        <span>2022年12月12日</span>
+        <span class="rf-cal-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4.5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      </button>
+      <button type="button" class="rf-switch" data-action="switchList">
+        <span>全レース一覧に切替</span>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 9h13l-3.5-3.5M20 15H7l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <!-- 1R–12R quick-jump tabs -->
+    <nav class="rf-rtabs" id="rfTabs"></nav>
+
+    <div class="rf-list" id="rfList"></div>
+  </div>
+</div>
+
+<script src="../assets/common.js"></script>
+<script>
+  /* ===================== 払戻金一覧 (Race Refund) ===================== */
+  (function () {
+    var RACE_NAME = 'C-2・C2組C2ファイナルレースナントカ杯';
+
+    // finish order (top 3) shared by the confirmed races
+    var FINISH = [
+      { w: 1, uma: 6, name: 'モーニングヘイズ', time: '1:32.1', diff: '' },
+      { w: 6, uma: 3, name: 'コスモユニック',   time: '',       diff: '大差' },
+      { w: 3, uma: 5, name: 'アーブルデム',     time: '',       diff: '2.1/2' }
+    ];
+
+    // payout columns shared by the confirmed races
+    var PAY_LEFT = [
+      { type: '単勝', rows: [ { combo: ['4'], amt: '1,234,567', pop: '3' } ] },
+      { type: '複勝', rows: [
+        { combo: ['4'], amt: '1,234,567', pop: '121' },
+        { combo: ['7'], amt: '1,234,567', pop: '121' },
+        { combo: ['3'], amt: '1,234,567', pop: '121' }
+      ] },
+      { type: '枠連', rows: [ { combo: ['4', '7'], sep: '-', amt: '1,234,567', pop: '121' } ] },
+      { type: '枠単', rows: [ { combo: ['4', '7'], sep: '→', amt: '1,234,567', pop: '121' } ] }
+    ];
+    var PAY_RIGHT = [
+      { type: '馬連',  rows: [ { combo: ['4', '7'], sep: '-', amt: '1,234,567', pop: '121' } ] },
+      { type: '馬単',  rows: [ { combo: ['4', '7'], sep: '→', amt: '1,234,567', pop: '121' } ] },
+      { type: 'ワイド', rows: [
+        { combo: ['4', '7'], sep: '-', amt: '1,234,567', pop: '121' },
+        { combo: ['4', '7'], sep: '-', amt: '1,234,567', pop: '121' },
+        { combo: ['4', '7'], sep: '-', amt: '1,234,567', pop: '121' }
+      ] },
+      { type: '3連複', rows: [ { combo: ['1', '2', '3'], sep: '-', amt: '1,234,567', pop: '121' } ] },
+      { type: '3連単', rows: [ { combo: ['1', '2', '3'], sep: '→', amt: '1,234,567', pop: '121' } ] }
+    ];
+
+    // 1R–3R confirmed; 4R–12R not yet confirmed (matches design)
+    var races = [];
+    for (var n = 1; n <= 12; n++) races.push({ no: n, confirmed: n <= 3 });
+
+    function finishRowHTML(f) {
+      var t = f.time
+        ? f.time + (f.diff ? ' <span class="diff">(' + f.diff + ')</span>' : '')
+        : (f.diff ? '<span class="diff">' + f.diff + '</span>' : '');
+      return '<tr>' +
+        '<td class="c"><span class="rf-fbadge w' + f.w + '">' + f.w + '</span></td>' +
+        '<td class="c"><span class="rf-fbadge uma">' + f.uma + '</span></td>' +
+        '<td class="rf-fname">' + f.name + '</td>' +
+        '<td class="rf-ftime">' + t + '</td>' +
+      '</tr>';
+    }
+
+    function comboHTML(row) {
+      var out = '<span class="rf-combo">';
+      row.combo.forEach(function (c, i) {
+        if (i > 0) out += '<span class="rf-csep">' + (row.sep || '') + '</span>';
+        out += '<span class="rf-cbadge">' + c + '</span>';
+      });
+      return out + '</span>';
+    }
+    function payRowHTML(row) {
+      return '<div class="rf-pline">' + comboHTML(row) +
+        '<span class="rf-amt num">' + row.amt + '<span class="yen">円</span></span>' +
+        '<span class="rf-pop">(' + row.pop + ')</span>' +
+      '</div>';
+    }
+    function payGroupHTML(g) {
+      return '<div class="rf-prow">' +
+        '<div class="rf-plabel">' + g.type + '</div>' +
+        '<div class="rf-pbody">' + g.rows.map(payRowHTML).join('') + '</div>' +
+      '</div>';
+    }
+    function payColHTML(groups) {
+      return '<div class="rf-pay-col">' + groups.map(payGroupHTML).join('') + '</div>';
+    }
+
+    var FLAG = '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 2v16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 3h11l-2 3 2 3H4" fill="currentColor"/></svg>';
+
+    function raceHTML(r) {
+      var head = '<div class="rf-rhead">' +
+        '<div class="rf-rname"><span class="rf-rno">' + r.no + 'R</span>' + RACE_NAME + '</div>' +
+        (r.confirmed ? '<button type="button" class="rf-result-btn" data-action="result">' + FLAG + 'レース結果</button>' : '') +
+      '</div>';
+
+      var body;
+      if (r.confirmed) {
+        body =
+          '<table class="rf-finish">' +
+            '<thead><tr><th>枠番</th><th>馬番</th><th class="nm">馬名</th><th class="tm">タイム(着差)</th></tr></thead>' +
+            '<tbody>' + FINISH.map(finishRowHTML).join('') + '</tbody>' +
+          '</table>' +
+          '<div class="rf-pay">' + payColHTML(PAY_LEFT) + payColHTML(PAY_RIGHT) + '</div>';
+      } else {
+        body = '<div class="rf-empty">結果はまだ確定していません</div>';
+      }
+      return '<div class="rf-race" id="rf-r' + r.no + '">' + head + body + '</div>';
+    }
+
+    function tabHTML(r, i) {
+      return '<button type="button" class="rf-rtab' + (i === 0 ? ' active' : '') +
+        '" data-race="' + r.no + '">' + r.no + 'R</button>';
+    }
+
+    document.getElementById('rfTabs').innerHTML = races.map(tabHTML).join('');
+    document.getElementById('rfList').innerHTML = races.map(raceHTML).join('');
+
+    var screen = document.querySelector('.screen');
+
+    // race-number tab → highlight + scroll the matching card into view
+    document.getElementById('rfTabs').addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.rf-rtab');
+      if (!btn) return;
+      Array.prototype.forEach.call(this.querySelectorAll('.rf-rtab'), function (t) {
+        t.classList.toggle('active', t === btn);
+      });
+      var card = document.getElementById('rf-r' + btn.getAttribute('data-race'));
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Stub buttons (開催日 / 全レース一覧に切替 / レース結果): routing is wired
+    // natively later — for now just notify the shell.
+    screen.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('[data-action]');
+      if (!el) return;
+      var host = el.closest('.rf-race');
+      var payload = host ? { race: host.querySelector('.rf-rno').textContent } : {};
+      if (typeof window.postToNative === 'function') {
+        window.postToNative('raceRefund:' + el.getAttribute('data-action'), payload);
+      }
+    });
+  })();
+</script>

@@ -52,8 +52,17 @@
     'SpOddsVote.do':       { tab: 'odds',    path: 'SpOddsVote.do' },
     'SpTipsterVote.do':    { tab: 'yosou',   path: 'SpTipsterVote.do' },
     'SpRaceResultInfo.do': { tab: 'result',  path: 'SpRaceResultInfo.do' },
-    // 全レース一覧 — a top-level list screen with no race chrome (see bootList).
-    'SpRaceList.do':       { tab: null,      path: 'SpRaceList.do', list: true }
+    // 全レース一覧 / 払戻金一覧 — top-level list screens with no race chrome
+    // (see bootList).
+    'SpRaceList.do':       { tab: null,      path: 'SpRaceList.do',   list: true },
+    'SpRaceRefund.do':     { tab: null,      path: 'SpRaceRefund.do', list: true }
+  };
+
+  // Titles for the top-level list screens (they own their layout, so the
+  // shared chrome doesn't set these). `doc` = <title>, `native` = shell header.
+  var LIST_TITLES = {
+    'SpRaceList.do':   { doc: '盛岡 レース一覧',       native: '盛岡レース一覧' },
+    'SpRaceRefund.do': { doc: '盛岡 レース払戻金一覧', native: '盛岡レース払戻金一覧' }
   };
 
   function detectContext() {
@@ -371,8 +380,9 @@
         if (ROUTES[rt]) a.setAttribute('href', displayHref(rt));
       });
     }
-    document.title = '盛岡 レース一覧';
-    postToNative('setTitle', { title: '盛岡レース一覧' });
+    var t = LIST_TITLES[ctx.route] || LIST_TITLES['SpRaceList.do'];
+    document.title = t.doc;
+    postToNative('setTitle', { title: t.native });
     if (typeof window.onChromeReady === 'function') window.onChromeReady(ctx);
   }
 

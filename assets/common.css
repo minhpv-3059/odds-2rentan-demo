@@ -777,3 +777,133 @@ table.yosou .horse-name { font-size: 13px; }
   display: flex; justify-content: flex-end;
   padding: 12px 14px; background: #eeeeee; box-shadow: 0 -1px 4px rgba(0,0,0,0.08);
 }
+
+/* ==========================================================================
+   払戻金一覧 (SpRaceRefund.do) — top-level list screen, own layout / no chrome
+   ========================================================================== */
+.refund { background: #eeeeee; min-height: 100vh; padding-bottom: 24px; }
+
+.rf-title {
+  margin: 0; padding: 14px 14px 12px; text-align: center;
+  font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.3;
+  background: #ffffff;
+}
+
+/* 開催日 + 全レース一覧に切替 */
+.rf-subhead {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 14px; background: #ffffff;
+  border-top: 1px solid var(--line);
+}
+.rf-date {
+  display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-size: 16px; font-weight: 600; color: var(--ink); white-space: nowrap;
+}
+.rf-cal-icon {
+  display: inline-flex; width: 34px; height: 34px; flex-shrink: 0;
+  align-items: center; justify-content: center;
+  border: 1px solid var(--cell-border); border-radius: 6px; background: #ffffff; color: var(--ink);
+}
+.rf-cal-icon svg { width: 20px; height: 20px; }
+.rf-switch {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 1; min-width: 0;
+  background: #ffffff; border: 1px solid var(--ink); border-radius: 8px;
+  padding: 9px 10px; font-size: 12px; font-weight: 600; color: var(--ink);
+  cursor: pointer; white-space: nowrap;
+}
+.rf-switch svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* race-number quick-jump tabs (1R–12R), sticky */
+.rf-rtabs {
+  position: sticky; top: 0; z-index: 10;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+  padding: 10px 8px; background: #ffffff;
+  border-top: 1px solid var(--line); box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.rf-rtab {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 34px; border-radius: 6px; border: 1px solid var(--cell-border);
+  background: #ffffff; color: var(--ink);
+  font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.rf-rtab.active { background: var(--nav-bg); border-color: var(--nav-bg); color: #ffffff; }
+
+/* race card */
+.rf-list { padding-top: 8px; }
+.rf-race { background: #ffffff; margin-bottom: 8px; scroll-margin-top: 58px; }
+.rf-rhead {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  padding: 12px 12px 10px;
+}
+.rf-rname { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.4; min-width: 0; }
+.rf-rno { font-size: 15px; font-weight: 700; margin-right: 6px; }
+.rf-result-btn {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  background: #ffffff; border: 1px solid var(--cell-border); border-radius: 6px;
+  padding: 7px 10px; font-size: 12px; font-weight: 600; color: var(--ink);
+  cursor: pointer; white-space: nowrap;
+}
+.rf-result-btn svg { width: 14px; height: 14px; color: var(--brand); }
+
+/* finish order table (top 3) */
+.rf-finish { width: 100%; border-collapse: collapse; }
+.rf-finish th {
+  font-size: 11px; font-weight: 600; color: var(--ink-soft);
+  background: var(--th-bg); text-align: center; padding: 4px 4px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.rf-finish th.nm { text-align: left; }
+.rf-finish th.tm { text-align: right; padding-right: 12px; }
+.rf-finish td { padding: 6px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.rf-finish td.c { text-align: center; }
+.rf-fbadge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 4px;
+  font-size: 13px; font-weight: 700; color: #ffffff;
+}
+.rf-fbadge.w1 { background: #ffffff; color: #333333; border: 1px solid var(--cell-border); }
+.rf-fbadge.w2 { background: #333333; }
+.rf-fbadge.w3 { background: var(--waku3); }
+.rf-fbadge.w4 { background: var(--waku4); }
+.rf-fbadge.w5 { background: var(--waku5); color: #333333; }
+.rf-fbadge.w6 { background: var(--waku6); }
+.rf-fbadge.w7 { background: var(--waku7); }
+.rf-fbadge.w8 { background: var(--waku8); }
+.rf-fbadge.uma { background: #4f4f4f; }
+.rf-fname { font-weight: 600; color: var(--ink); }
+.rf-ftime { text-align: right; padding-right: 12px !important; color: var(--ink); white-space: nowrap; }
+.rf-ftime .diff { color: var(--ink-soft); font-size: 12px; }
+
+/* payout grid: two columns */
+.rf-pay {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--line);
+}
+.rf-pay-col { padding: 4px 0; }
+.rf-pay-col + .rf-pay-col { border-left: 1px solid var(--line); }
+.rf-prow { display: flex; gap: 6px; padding: 6px 10px; align-items: flex-start; }
+.rf-prow + .rf-prow { border-top: 1px dashed var(--line); }
+.rf-plabel {
+  flex: 0 0 34px; font-size: 12px; font-weight: 700; color: var(--ink);
+  padding-top: 3px; line-height: 1.3;
+}
+.rf-pbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.rf-pline { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.rf-combo { display: inline-flex; align-items: center; gap: 2px; }
+.rf-cbadge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 3px; border-radius: 3px;
+  background: #4f4f4f; color: #ffffff; font-size: 12px; font-weight: 700;
+}
+.rf-csep { font-size: 12px; font-weight: 700; color: var(--ink); margin: 0 1px; }
+.rf-amt { font-size: 13px; font-weight: 700; color: var(--ink); margin-left: 2px; }
+.rf-amt .yen { font-size: 11px; font-weight: 600; margin-left: 1px; }
+.rf-pop { font-size: 11px; color: var(--ink-soft); }
+
+/* not-yet-confirmed */
+.rf-empty {
+  margin: 0 12px 12px; padding: 20px 12px; text-align: center;
+  background: #f6f6f6; border: 1px solid var(--line); border-radius: 6px;
+  font-size: 13px; color: var(--ink-soft);
+}

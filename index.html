@@ -1649,6 +1649,17 @@
       });
     });
   })();
+  /* ===================== 直近の予想実績 → native modal ===================== */
+  (function () {
+    document.querySelectorAll('.recent-btn').forEach(function (el) {
+      el.addEventListener('click', function () {
+        if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+          // Tên event phải khớp addJavaScriptHandler bên app.
+          window.flutter_inappwebview.callHandler('showRecentPredictionModal');
+        }
+      });
+    });
+  })();
     /* ===================== 予想印投票 → native 投票タブ ===================== */
   (function () {
     var buttons = document.querySelectorAll('.vote-actions button');

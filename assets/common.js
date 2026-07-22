@@ -51,7 +51,9 @@
     'SpZengoYosouInfo.do': { tab: 'shutuba', sub: 'prev5v', path: 'ajax/SpZengoYosouInfo.do' },
     'SpOddsVote.do':       { tab: 'odds',    path: 'SpOddsVote.do' },
     'SpTipsterVote.do':    { tab: 'yosou',   path: 'SpTipsterVote.do' },
-    'SpRaceResultInfo.do': { tab: 'result',  path: 'SpRaceResultInfo.do' }
+    'SpRaceResultInfo.do': { tab: 'result',  path: 'SpRaceResultInfo.do' },
+    // 全レース一覧 — a top-level list screen with no race chrome (see bootList).
+    'SpRaceList.do':       { tab: null,      path: 'SpRaceList.do', list: true }
   };
 
   function detectContext() {
@@ -71,7 +73,7 @@
     }
     var routeKey = ROUTES[routeFile] ? routeFile : 'SpRaceInfo.do';
     var info = ROUTES[routeKey];
-    return { game: game, prefix: prefix, tab: info.tab, sub: info.sub, route: routeKey };
+    return { game: game, prefix: prefix, tab: info.tab, sub: info.sub, route: routeKey, list: !!info.list };
   }
 
   var ctx = detectContext();
@@ -252,6 +254,9 @@
   function loadRoute(routeFile, opts) {
     opts = opts || {};
     if (!ROUTES[routeFile]) { location.href = displayHref(routeFile); return; }
+    // List screens have their own layout (no race chrome); never content-swap
+    // into them — always do a full navigation.
+    if (ROUTES[routeFile].list) { location.href = displayHref(routeFile); return; }
     if (loading) return;
     if (opts.push && routeFile === ctx.route) { window.scrollTo(0, 0); return; }
     loading = true;
@@ -328,8 +333,12 @@
       tab.innerHTML = '<div class="r-no">' + raceNo + 'R</div><div class="r-status">発売中</div>';
       raceTabs.appendChild(tab);
     }
-    var allTab = document.createElement('div');
+    // 全レース一覧 links to the list screen. It carries no data-route (so the
+    // tab-click interceptor ignores it) and navigates as a full page load —
+    // the list has its own layout, not the race chrome.
+    var allTab = document.createElement('a');
     allTab.className = 'race-tab all';
+    allTab.href = displayHref('SpRaceList.do');
     allTab.innerHTML = '全レース<br>一覧';
     raceTabs.appendChild(allTab);
   }
@@ -349,11 +358,30 @@
     document.body.classList.toggle('show-cart', !!on);
   };
 
+  /* ---------- list-layout boot (全レース一覧) ----------
+     A top-level list screen ships its own header and has no race chrome,
+     so we skip renderChrome entirely. We only fix up the in-row nav links
+     (出走表 / オッズ / 予想情報) to the display style this page was opened in,
+     then let them navigate normally (full load into the race chrome). */
+  function bootList() {
+    var scr = document.querySelector('.screen');
+    if (scr) {
+      Array.prototype.forEach.call(scr.querySelectorAll('a[data-route]'), function (a) {
+        var rt = a.getAttribute('data-route');
+        if (ROUTES[rt]) a.setAttribute('href', displayHref(rt));
+      });
+    }
+    document.title = '盛岡 レース一覧';
+    postToNative('setTitle', { title: '盛岡レース一覧' });
+    if (typeof window.onChromeReady === 'function') window.onChromeReady(ctx);
+  }
+
   /* ---------- boot ---------- */
   function boot() {
     if (BRAND[ctx.game]) {
       document.documentElement.style.setProperty('--brand', BRAND[ctx.game]);
     }
+    if (ctx.list) { bootList(); return; }
     renderChrome();
     interceptTabClicks();
     history.replaceState({ route: ctx.route }, '', location.href);

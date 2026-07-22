@@ -618,6 +618,38 @@ table.yosou .horse-name { font-size: 13px; }
 .cart-bar .btn-save { background: #ffffff; border: 1px solid #e7750c; color: #e7750c; }
 .cart-bar .btn-amount { background: #e7750c; border: none; color: #ffffff; }
 
+/* ---- オッズ > 単勝・複勝 (betType=1, full-width single/place list) ---- */
+.tf-table { margin: 1px 12px 0; border: 1px solid var(--cell-border); }
+.tf-head, .tf-row { display: grid; grid-template-columns: 38px 1fr 70px 82px; align-items: center; }
+.tf-head { background: var(--th-bg); border-bottom: 1px solid var(--cell-border); }
+.tf-head > div { padding: 6px 6px; font-size: 10px; font-weight: 700; color: var(--ink); text-align: center; line-height: 1.3; }
+.tf-head > div.tf-c-name { text-align: left; }
+.tf-row { min-height: 52px; border-bottom: 1px solid var(--cell-border); cursor: pointer; }
+.tf-row:last-child { border-bottom: none; }
+.tf-row.selected { background: var(--row-hi); }
+.tf-row > div { padding: 6px; }
+.tf-c-num { display: flex; justify-content: center; }
+.tf-c-name { min-width: 0; }
+.tf-c-name .horse-jockey { font-size: 11px; }
+.tf-c-tan, .tf-c-fuku { text-align: right; }
+.tf-c-tan .odds { font-size: 15px; }
+.tf-c-fuku .fuku { font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.tf-check { color: var(--badge-green); font-weight: 700; margin-right: 2px; }
+
+/* frame-coloured combo badges (枠連 betType=3) */
+.badge.w1 { background: #ffffff; color: #333333; border: 1px solid var(--cell-border); }
+.badge.w2 { background: #333333; border-color: #333333; color: #ffffff; }
+.badge.w3 { background: var(--waku3); border-color: var(--waku3); color: #ffffff; }
+.badge.w4 { background: var(--waku4); border-color: var(--waku4); color: #ffffff; }
+.badge.w5 { background: var(--waku5); border-color: var(--waku5); color: #333333; }
+.badge.w6 { background: var(--waku6); border-color: var(--waku6); color: #ffffff; }
+.badge.w7 { background: var(--waku7); border-color: var(--waku7); color: #ffffff; }
+.badge.w8 { background: var(--waku8); border-color: var(--waku8); color: #ffffff; }
+
+/* combo row selection highlight */
+.odds-tr { cursor: pointer; }
+.odds-tr.sel .odds-th, .odds-tr.sel .odds-td { background: var(--row-hi); }
+
 /* ==========================================================
    game selector (landing / index.html)
    ========================================================== */

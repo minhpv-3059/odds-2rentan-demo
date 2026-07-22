@@ -69,8 +69,9 @@
     for (var j = parts.length - 1; j >= 0; j--) {
       if (/\.do(\.html)?$/.test(parts[j])) { routeFile = parts[j].replace(/\.html$/, ''); break; }
     }
-    var info = ROUTES[routeFile] || ROUTES['SpRaceInfo.do'];
-    return { game: game, prefix: prefix, tab: info.tab, sub: info.sub };
+    var routeKey = ROUTES[routeFile] ? routeFile : 'SpRaceInfo.do';
+    var info = ROUTES[routeKey];
+    return { game: game, prefix: prefix, tab: info.tab, sub: info.sub, route: routeKey };
   }
 
   var ctx = detectContext();
@@ -82,6 +83,14 @@
   // Clean URL (no trailing slash, no .html); GitHub Pages resolves it to the
   // matching <path>.do.html file.
   function href(routeFile) { return ctx.prefix + '/' + ctx.game + '/' + ROUTES[routeFile].path; }
+
+  // The actual file to fetch always keeps the `.html` extension. The URL we
+  // *display* (anchor href + pushState) mirrors however this page was opened:
+  // clean under GitHub Pages, `.do.html` when browsed off a plain local server
+  // — so a manual reload still resolves.
+  var USES_HTML = /\.html$/.test(location.pathname);
+  function fileHref(routeFile) { return href(routeFile) + '.html'; }
+  function displayHref(routeFile) { return USES_HTML ? fileHref(routeFile) : href(routeFile); }
 
   /* ---------- shared chrome markup ---------- */
   var CONTENT_NAV = [
@@ -129,7 +138,7 @@
   function contentNavHTML() {
     return CONTENT_NAV.map(function (n) {
       var active = n.tab === ctx.tab ? ' active' : '';
-      return '<a class="nav-item' + active + '" href="' + href(n.route) + '" data-tab="' + n.tab + '">' +
+      return '<a class="nav-item' + active + '" href="' + displayHref(n.route) + '" data-tab="' + n.tab + '" data-route="' + n.route + '">' +
         '<span class="icon">' + n.icon + '</span><span>' + n.label + '</span></a>';
     }).join('');
   }
@@ -139,53 +148,175 @@
     SUB_TABS.forEach(function (s, i) {
       if (i > 0) html += '<div class="sub-divider"></div>';
       var active = s.sub === ctx.sub ? ' active' : '';
-      html += '<a class="' + active.trim() + '" href="' + href(s.route) + '" data-sub="' + s.sub + '">' + s.label + '</a>';
+      html += '<a class="' + active.trim() + '" href="' + displayHref(s.route) + '" data-sub="' + s.sub + '" data-route="' + s.route + '">' + s.label + '</a>';
     });
     return html;
   }
 
-  /* ---------- render chrome into the page ---------- */
+  /* ---------- render chrome into the page ----------
+     The chrome (mini-header, race-header, race-tabs, content-nav, sub-tabs)
+     is built ONCE and kept in place. The page's own markup is moved into a
+     persistent `#pageContent` wrapper; switching tabs replaces only that
+     wrapper's contents (see loadRoute), so the surrounding chrome never
+     reloads and the screen no longer flashes. */
+  var els = {};
   function renderChrome() {
     var screen = document.querySelector('.screen');
     if (!screen) return;
+    els.screen = screen;
+
+    // Move the page's own content out of the way into a swappable wrapper.
+    var pageContent = document.createElement('div');
+    pageContent.id = 'pageContent';
+    pageContent.className = 'page-content';
+    while (screen.firstChild) pageContent.appendChild(screen.firstChild);
+    els.pageContent = pageContent;
 
     var mini = document.createElement('div');
     mini.className = 'mini-header';
     mini.id = 'miniHeader';
     mini.innerHTML = miniHeaderHTML();
     screen.parentNode.insertBefore(mini, screen);
-
-    var frag = document.createDocumentFragment();
+    els.mini = mini;
 
     var raceHeader = document.createElement('div');
     raceHeader.className = 'race-header';
     raceHeader.id = 'raceHeader';
     raceHeader.innerHTML = raceHeaderHTML();
-    frag.appendChild(raceHeader);
+    els.raceHeader = raceHeader;
 
     var raceTabs = document.createElement('nav');
     raceTabs.className = 'race-tabs';
     raceTabs.id = 'raceTabs';
-    frag.appendChild(raceTabs);
 
     var nav = document.createElement('nav');
     nav.className = 'content-nav';
     nav.id = 'contentNav';
     nav.innerHTML = contentNavHTML();
-    frag.appendChild(nav);
+    els.contentNav = nav;
 
-    if (ctx.tab === 'shutuba') {
-      var sub = document.createElement('nav');
-      sub.className = 'sub-tabs';
-      sub.id = 'subTabs';
-      sub.innerHTML = subTabsHTML();
-      frag.appendChild(sub);
-    }
-
-    screen.insertBefore(frag, screen.firstChild);
+    screen.appendChild(raceHeader);
+    screen.appendChild(raceTabs);
+    screen.appendChild(nav);
+    ensureSubTabs();               // 出走表 only; inserted right after content-nav
+    screen.appendChild(pageContent);
 
     buildRaceTabs(raceTabs);
     initMiniHeader(raceHeader, mini);
+  }
+
+  /* ---------- content-only tab switching (no full reload) ---------- */
+
+  // The 前5走(縦) sub-tab only exists on 出走表; create or drop it to match
+  // the current tab, then refresh its label/active state.
+  function ensureSubTabs() {
+    var sub = document.getElementById('subTabs');
+    if (ctx.tab === 'shutuba') {
+      if (!sub) {
+        sub = document.createElement('nav');
+        sub.className = 'sub-tabs';
+        sub.id = 'subTabs';
+        els.contentNav.parentNode.insertBefore(sub, els.contentNav.nextSibling);
+      }
+      sub.innerHTML = subTabsHTML();
+    } else if (sub) {
+      sub.parentNode.removeChild(sub);
+    }
+  }
+
+  function setActiveChrome() {
+    Array.prototype.forEach.call(els.contentNav.querySelectorAll('.nav-item'), function (a) {
+      a.classList.toggle('active', a.getAttribute('data-tab') === ctx.tab);
+    });
+    var sub = document.getElementById('subTabs');
+    if (sub) {
+      Array.prototype.forEach.call(sub.querySelectorAll('a'), function (a) {
+        a.classList.toggle('active', a.getAttribute('data-sub') === ctx.sub);
+      });
+    }
+  }
+
+  // innerHTML never executes <script>; re-create each inline page script so it
+  // runs against the freshly-swapped DOM. The shared common.js (src) is already
+  // loaded, so it is skipped.
+  function runContentScripts(doc) {
+    Array.prototype.forEach.call(doc.querySelectorAll('script'), function (old) {
+      if (old.src) return;
+      var s = document.createElement('script');
+      s.textContent = old.textContent;
+      els.pageContent.appendChild(s);
+    });
+  }
+
+  var loading = false;
+  function loadRoute(routeFile, opts) {
+    opts = opts || {};
+    if (!ROUTES[routeFile]) { location.href = displayHref(routeFile); return; }
+    if (loading) return;
+    if (opts.push && routeFile === ctx.route) { window.scrollTo(0, 0); return; }
+    loading = true;
+    var url = displayHref(routeFile);
+
+    fetch(fileHref(routeFile), { credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var newScreen = doc.querySelector('.screen');
+        if (!newScreen) throw new Error('no .screen in ' + routeFile);
+
+        // Reset transient state pages opt into (e.g. the sticky cart bar);
+        // the incoming page's script re-enables it if needed.
+        if (typeof window.setCart === 'function') window.setCart(false);
+
+        var info = ROUTES[routeFile];
+        ctx.tab = info.tab;
+        ctx.sub = info.sub;
+        ctx.route = routeFile;
+
+        els.pageContent.innerHTML = newScreen.innerHTML;
+        ensureSubTabs();
+        setActiveChrome();
+        runContentScripts(doc);
+
+        if (doc.title) document.title = doc.title;
+        window.scrollTo(0, 0);
+        els.mini.classList.remove('visible');
+
+        if (opts.push) history.pushState({ route: routeFile }, '', url);
+        loading = false;
+      })
+      .catch(function (err) {
+        loading = false;
+        console.warn('tab swap failed; falling back to full navigation', err);
+        location.href = url;
+      });
+  }
+
+  function routeFromPath() {
+    var parts = location.pathname.split('/').filter(Boolean);
+    var routeFile = null;
+    for (var j = parts.length - 1; j >= 0; j--) {
+      if (/\.do(\.html)?$/.test(parts[j])) { routeFile = parts[j].replace(/\.html$/, ''); break; }
+    }
+    return ROUTES[routeFile] ? routeFile : 'SpRaceInfo.do';
+  }
+
+  function interceptTabClicks() {
+    els.screen.addEventListener('click', function (e) {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.defaultPrevented) return;
+      var a = e.target.closest && e.target.closest('a[data-route]');
+      if (!a || !els.screen.contains(a)) return;
+      var route = a.getAttribute('data-route');
+      if (!ROUTES[route]) return;
+      e.preventDefault();
+      loadRoute(route, { push: true });
+    });
+    window.addEventListener('popstate', function () {
+      loadRoute(routeFromPath(), { push: false });
+    });
   }
 
   /* ---------- race-number tabs (8R–11R + 全レース一覧) ---------- */
@@ -224,6 +355,8 @@
       document.documentElement.style.setProperty('--brand', BRAND[ctx.game]);
     }
     renderChrome();
+    interceptTabClicks();
+    history.replaceState({ route: ctx.route }, '', location.href);
     document.title = '金沢 11R';
     postToNative('setTitle', { title: '金沢 11R' });
     if (typeof window.onChromeReady === 'function') window.onChromeReady(ctx);

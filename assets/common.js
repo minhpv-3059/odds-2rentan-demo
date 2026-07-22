@@ -63,9 +63,11 @@
     // Mount prefix = everything before the game segment. Empty at domain root
     // (local server), '/odds-2rentan-demo' under GitHub Pages, etc.
     var prefix = gameIdx > 0 ? '/' + parts.slice(0, gameIdx).join('/') : '';
+    // Match both the clean URL (…/SpRaceInfo.do) and the raw file
+    // (…/SpRaceInfo.do.html), normalising to the ROUTES key.
     var routeFile = null;
     for (var j = parts.length - 1; j >= 0; j--) {
-      if (/\.do$/.test(parts[j])) { routeFile = parts[j]; break; }
+      if (/\.do(\.html)?$/.test(parts[j])) { routeFile = parts[j].replace(/\.html$/, ''); break; }
     }
     var info = ROUTES[routeFile] || ROUTES['SpRaceInfo.do'];
     return { game: game, prefix: prefix, tab: info.tab, sub: info.sub };
@@ -77,7 +79,9 @@
   }
   window.PAGE_CTX = ctx;
 
-  function href(routeFile) { return ctx.prefix + '/' + ctx.game + '/' + ROUTES[routeFile].path + '/'; }
+  // Clean URL (no trailing slash, no .html); GitHub Pages resolves it to the
+  // matching <path>.do.html file.
+  function href(routeFile) { return ctx.prefix + '/' + ctx.game + '/' + ROUTES[routeFile].path; }
 
   /* ---------- shared chrome markup ---------- */
   var CONTENT_NAV = [

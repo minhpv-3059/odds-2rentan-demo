@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>投票完了（OPコイン）</title>
+<!--
+  投票完了画面 (SpCmVoteCompleteOpcoin.do) — OP コインで支払った場合の完了画面。
+  投票資金で支払った場合は SpCmVoteComplete.do を表示する。
+  OddsPark アプリの native デザインを HTML/CSS/JS で再現し、WebView から
+  URL 読み込みで表示する。ボタンの 3 経路を app 側がそのまま処理する:
+
+    1. 投票照会へ  → 通常リンク https://<domain>/auth/SpVoteReceiptNoList.do
+                     （app が横取りして layer2 / CommonWebView を開く）
+    2. 各 deeplink → odds-sop://notification?...（app が native 画面遷移）
+    3. 特定商取引法 → JS window.flutter_inappwebview.callHandler('showModalUrl', url)
+                     （app が bottom sheet を開く。app 外では新規タブで開く）
+
+  ■ リアルタイムデータ (app 内): native が JS bridge 経由でデータを渡す。
+      - 初回: ページが window.flutter_inappwebview.callHandler('getVoteData') で pull
+      - 更新: native が投票結果取得などのたびに window.opRenderData(json) で push
+    → app の cartCompleteViewProvider が更新されるたびに再描画される（＝realtime）。
+
+  ■ ブラウザ preview (app 外): 下の DATA サンプルで描画。
+      - category は URL パス（keiba/keirin/autorace）から自動判定。
+      - URL パラメータで上書き可: ?category=keiba|keirin|autorace
+        &kaisaiBi=20260722&joCd=20&raceNo=11&vote=1
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: sans-serif; margin: 0; background: #eeeeee; color: #333333; }
+  .header { padding: 16px 0 24px; }
+  .successBox {
+    margin: 0 12px; background: #eaf9f0; border: 2px solid #00943c;
+    padding: 8px 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .check { color: #00943c; font-size: 22px; font-weight: 700; line-height: 1; }
+  .successText { color: #00943c; font-weight: 600; font-size: 18px; line-height: 1.2; }
+  .applyDate { margin: 8px 12px 0; font-weight: 300; font-size: 12px; color: #151515; }
+  .usableTitle { margin: 16px 12px 8px; font-weight: 600; font-size: 14px; color: #333333; }
+  .coinRow {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #ffffff; padding: 12px 16px;
+  }
+  .coinLabel { font-weight: 300; font-size: 14px; color: #333333; }
+  .coinValue { font-family: 'SF Pro', sans-serif; font-size: 16px; font-weight: 700; color: #333333; }
+  .coinUnit { font-size: 12px; font-weight: 600; margin-left: 1px; }
+  .coinDividerWrap { background: #ffffff; padding: 0 16px; }
+  .coinDivider { height: 1px; background: #dedede; }
+  .confirmTitle { margin: 0 12px; font-weight: 600; font-size: 18px; color: #333333; }
+  .errorBox {
+    margin: 16px 12px 0; background: #fae6e9; border: 2px solid #cc0621;
+    padding: 8px 16px; color: #cc0621; font-weight: 300; font-size: 14px; line-height: 1.3;
+  }
+  details.voteSection { margin: 0; }
+  details.voteSection > summary { list-style: none; cursor: pointer; }
+  details.voteSection > summary::-webkit-details-marker { display: none; }
+  .voteHeader {
+    display: flex; align-items: center; padding: 14px 16px;
+    background: #ffffff; font-weight: 600; font-size: 16px; color: #333333;
+  }
+  .voteHeader.error { color: #cc0621; }
+  .voteHeaderLabel { flex: 1; }
+  .alertIcon { margin-right: 8px; }
+  .arrow { font-size: 12px; transition: transform .2s; }
+  details[open] .arrow { transform: rotate(180deg); }
+  .voteItem { background: #ffffff; padding: 16px; }
+  .voteItem + .voteItem { border-top: 1px solid #dedede; }
+  .voteItemTop { display: flex; align-items: flex-start; justify-content: space-between; }
+  .voteName { display: block; font-size: 14px; font-weight: 600; color: #333333; line-height: 1.3; }
+  .voteTitle { display: block; font-size: 11px; font-weight: 600; color: #333333; line-height: 1.2; }
+  .voteItemAmount {
+    display: flex; flex-direction: column; align-items: flex-end;
+    font-size: 14px; font-weight: 600; color: #333333; white-space: nowrap;
+  }
+  .voteItemDivider { height: 1px; background: #dedede; margin: 13px 0 8px; }
+  .voteChips { display: flex; flex-direction: column; gap: 4px; }
+  .kaimeRow { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; }
+  .chip {
+    min-width: 24px; height: 24px; padding: 0 3px; border: 1px solid #333333;
+    border-radius: 2px; display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'SF Pro', sans-serif; font-size: 12px; font-weight: 600; color: #333333;
+  }
+  .chipSep { font-size: 12px; color: #333333; margin: 0 1px; }
+  .receiptWrap { padding: 16px 16px 0; text-align: right; }
+  .receipt { color: #333333; font-weight: 600; font-size: 14px; text-decoration: none; }
+  .receiptArrow { margin-left: 8px; }
+  .recommendPad { padding: 40px 16px 24px; }
+  .recommendNoRace { padding: 40px 0 24px; }
+  .btnRow { display: flex; gap: 8px; }
+  .topRow { margin: 24px 16px 0; }
+  .obtn, .wideBtn {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    background: #ffffff; border: 1px solid #333333; border-radius: 4px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+  }
+  .obtn { height: 40px; }
+  .wideBtn { height: 56px; width: 100%; }
+  .raceTitleWrap { margin-top: 24px; }
+  .raceTitleWrap.pad12l { margin-top: 0; padding-left: 12px; }
+  .raceTitleMain { font-weight: 600; font-size: 14px; color: #151515; }
+  .raceTitleSub { margin-top: 8px; display: flex; gap: 16px; font-weight: 300; font-size: 12px; color: #151515; }
+  .rlist { display: flex; overflow-x: auto; gap: 8px; margin-top: 8px; padding: 4px 0; -webkit-overflow-scrolling: touch; }
+  .rcard {
+    flex: 0 0 auto; width: 63px; background: #ffffff; border: 1px solid #333333;
+    border-radius: 4px; padding: 6px 4px; display: flex; flex-direction: column;
+    align-items: center; text-align: center; text-decoration: none;
+  }
+  .rno { font-family: 'SF Pro', sans-serif; font-size: 18px; font-weight: 700; }
+  .rjo { font-size: 10px; font-weight: 600; line-height: 1.2; }
+  .rstatus { margin-top: 4px; width: 100%; background: #fdecec; color: #e83d3d; font-size: 9px; font-weight: 600; padding: 1px 0; }
+  .noRaceBox { background: #ffffff; padding: 16px; margin-top: 8px; }
+  .noRaceDesc { margin: 0 0 12px; font-weight: 300; font-size: 14px; color: #333333; line-height: 1.3; text-align: center; }
+  .gap24 { height: 24px; }
+  .tokushoho { padding: 0 12px; }
+  .tokuLine { display: flex; font-weight: 300; font-size: 12px; color: #333333; margin-bottom: 8px; }
+  .tokuLine .mark { margin-right: 2px; }
+  .tokuLink { text-align: right; }
+  .tokuLink button {
+    background: none; border: none; padding: 4px 0; font-size: 12px; font-weight: 300;
+    color: #0a72ef; text-decoration: underline; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================================
+ * CONFIG — 環境ごとに書き換える
+ * ==========================================================================*/
+var CONFIG = {
+  // staging: 'sp.st.oddspark.com' / production: 'sp.oddspark.com'
+  spSiteDomain: 'sp.st.oddspark.com',
+};
+
+/* ============================================================================
+ * DATA — 表示データ（本番は server が埋め込む。ここはサンプル）
+ * ==========================================================================*/
+var DATA = {
+  category: 'keiba',        // 'keiba' | 'keirin' | 'autorace'（起動時にパスから自動判定）
+  isOpCoin: true,           // このページは OP コインで支払った場合の完了画面
+  info: {
+    successNum: 2,
+    failureKaimeNum: 0,
+    voteLimit: 98,
+    buyLimit: 99500000,
+    errorMsg: '',           // 空でなければエラーヘッダー表示
+  },
+  applicationDate: '2026-07-22T10:30:00',
+  successList: [
+    {
+      joName: '大井', kaisaiBi: '20260722',
+      kaime: [
+        {
+          kakeshikiName: '三連単', houshikiName: 'ﾎﾞｯｸｽ', raceNo: 11,
+          betCount: 6, unitPrice: 100,
+          kaime: ['1→2→3', '1→3→2', '2→1→3', '2→3→1', '3→1→2', '3→2→1'],
+        },
+        {
+          kakeshikiName: '単勝', houshikiName: '', raceNo: 11,
+          betCount: 1, unitPrice: 500, kaime: ['5'],
+        },
+      ],
+    },
+  ],
+  failureList: [],
+
+  /* レコメンド領域の状態（native _buildRecommendView と同じ優先順位）
+     racesAtSameVenue → upcomingRacesAtVenue → hasSecondChoice → hasThirdChoice → TOP のみ */
+  isShowVoteCurrentRaceBtn: true,
+  racesAtSameVenue: [
+    { raceNo: 12, joName: '大井', joCode: '20', kaisaibi: '20260722', status: '発売中' },
+    { raceNo: 11, joName: '園田', joCode: '22', kaisaibi: '20260722', status: '発売中' },
+    { raceNo: 10, joName: '門別', joCode: '30', kaisaibi: '20260722', status: '締切5分前' },
+  ],
+  upcomingRacesAtVenue: [],
+  hasSecondChoice: false,
+  hasThirdChoice: false,
+
+  /* 「同じレースで投票」/ 各レコメンド deeplink に載せるレース情報
+     （本番では web が埋め込む。ここは query param で上書き可能） */
+  lastRace: { kaisaiBi: '20260722', joCd: '20', raceNo: '11', vote: '1' },
+};
+
+/* ============================================================================
+ * CATEGORY 設定（Dart CartCompleteConfig / screenId と同じ）
+ * ==========================================================================*/
+var CATEGORY_CONFIG = {
+  keiba: {
+    topButtonText: '競馬TOPへ', topColor: '#22903a',
+    secondColor: '#0180b6', secondText: '競輪の開催中のレースを探す',
+    emptySecond: '本日の地方競馬は終了しました', emptyThird: '本日の地方競輪は終了しました',
+    thirdText: 'オートレースの開催中のレースを探す', thirdColor: '#7347ab',
+    secondPath: '/keirin', thirdPath: '/autorace',
+    voteScreenId: 'CA109-01', topPath: '/keiba', sponsor: '競馬主催者',
+  },
+  keirin: {
+    topButtonText: '競輪TOPへ', topColor: '#0180b6',
+    secondColor: '#7347ab', secondText: 'オートレースの開催中のレースを探す',
+    emptySecond: '本日の地方競輪は終了しました', emptyThird: '本日の地方オートレースは終了しました',
+    thirdText: '競馬の開催中のレースを探す', thirdColor: '#22903a',
+    secondPath: '/autorace', thirdPath: '/keiba',
+    voteScreenId: 'CA309-37', topPath: '/keirin', sponsor: '競輪施行者',
+  },
+  autorace: {
+    topButtonText: 'オートレースTOPへ', topColor: '#7347ab',
+    secondColor: '#0180b6', secondText: '競輪の開催中のレースを探す',
+    emptySecond: '本日の地方オートレースは終了しました', emptyThird: '本日の地方競輪は終了しました',
+    thirdText: '競馬の開催中のレースを探す', thirdColor: '#22903a',
+    secondPath: '/keirin', thirdPath: '/keiba',
+    voteScreenId: 'CA509-29', topPath: '/autorace', sponsor: '施行者',
+  },
+};
+
+/* ============================================================================
+ * ヘルパー
+ * ==========================================================================*/
+function cfg() { return CATEGORY_CONFIG[DATA.category] || CATEGORY_CONFIG.keiba; }
+function baseUrl() { return 'https://' + CONFIG.spSiteDomain; }
+function receiptUrl() { return baseUrl() + '/auth/SpVoteReceiptNoList.do'; }
+function lawUrl() { return baseUrl() + '/service/toiawase.html'; }
+
+/* URL パス（keiba/keirin/autorace）から category を判定。
+   3 ゲームのフォルダに byte-identical で置いても各ゲームの色・文言になる。 */
+function detectCategoryFromPath() {
+  var parts = window.location.pathname.split('/').filter(Boolean);
+  for (var i = 0; i < parts.length; i++) {
+    if (CATEGORY_CONFIG[parts[i]]) return parts[i];
+  }
+  return null;
+}
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function addComma(n) { return Number(n || 0).toLocaleString('en-US'); }
+
+function formatApplyDate(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '年' + m + '月' + day + '日';
+}
+function formatKaisaiBi(s) {
+  if (!s || s.length !== 8) return '';
+  return s.slice(2, 4) + '.' + s.slice(4, 6) + '.' + s.slice(6, 8);
+}
+
+/* screenId（Dart _topScreenIdForPath / _voteScreenId と同じ） */
+function topScreenId(path) {
+  if (path === '/keirin') return 'CA302-01';
+  if (path === '/autorace') return 'CA502-01';
+  return 'CA102-01';
+}
+
+/* deeplink 組み立て */
+var DL_BASE = 'odds-sop://notification?action=1';
+function voteDeeplink() {
+  var r = DATA.lastRace;
+  return DL_BASE + '&screenId=' + cfg().voteScreenId +
+    '&kaisaiBi=' + r.kaisaiBi + '&joCd=' + r.joCd + '&raceNo=' + r.raceNo + '&vote=' + r.vote;
+}
+function topDeeplink() { return DL_BASE + '&screenId=' + topScreenId(cfg().topPath); }
+function homeDeeplink() { return DL_BASE + '&screenId=CA018-01'; }
+function secondChoiceDeeplink() { return DL_BASE + '&screenId=' + topScreenId(cfg().secondPath); }
+function thirdChoiceDeeplink() { return DL_BASE + '&screenId=' + topScreenId(cfg().thirdPath); }
+
+/* 特定商取引法: app 内は bridge、app 外(通常ブラウザ)は新規タブで開く */
+function showModal(url) {
+  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+    window.flutter_inappwebview.callHandler('showModalUrl', url);
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+/* ============================================================================
+ * 描画（Dart _buildTestHtml と同じ構成）
+ * ==========================================================================*/
+function errorMessage() {
+  if (DATA.failureList && DATA.failureList.length) {
+    return '投票申込不成立の買い目があります。\n内容をご確認ください。';
+  }
+  if (DATA.info.errorMsg) return DATA.info.errorMsg.replace(/<br>/g, '\n');
+  return null;
+}
+
+function buildSuccessHeader() {
+  if (!DATA.successList.length) return '';
+  var buyLabel = DATA.isOpCoin ? 'OPコイン' : '投票可能金額';
+  return '' +
+    '<div class="successBox">' +
+      '<span class="check">✓</span>' +
+      '<span class="successText">' + DATA.info.successNum + '件の投票を受け付けました</span>' +
+    '</div>' +
+    '<p class="applyDate">申込日：' + esc(formatApplyDate(DATA.applicationDate)) + '</p>' +
+    '<p class="usableTitle">本日まだご利用が可能です</p>' +
+    '<div class="coinRow"><span class="coinLabel">投票可能回数</span>' +
+      '<span class="coinValue">' + addComma(DATA.info.voteLimit) + '<span class="coinUnit">回</span></span></div>' +
+    '<div class="coinDividerWrap"><div class="coinDivider"></div></div>' +
+    '<div class="coinRow"><span class="coinLabel">' + esc(buyLabel) + '</span>' +
+      '<span class="coinValue">' + addComma(DATA.info.buyLimit) + '<span class="coinUnit">円</span></span></div>';
+}
+
+function buildErrorHeader(message) {
+  return '<h2 class="confirmTitle">投票内容確認</h2>' +
+    '<div class="errorBox">' + esc(message).replace(/\n/g, '<br>') + '</div>';
+}
+
+function buildKaimeChips(kaimeList) {
+  if (!kaimeList || !kaimeList.length) return '';
+  return kaimeList.map(function (kaime) {
+    var hasOrder = kaime.indexOf('→') >= 0;
+    var numbers = kaime.replace(/ /g, '').split(hasOrder ? '→' : '-').filter(Boolean);
+    var sep = '<span class="chipSep">' + (hasOrder ? '→' : '=') + '</span>';
+    var chips = numbers.map(function (n) { return '<span class="chip">' + esc(n) + '</span>'; }).join(sep);
+    return '<div class="kaimeRow">' + chips + '</div>';
+  }).join('\n');
+}
+
+function buildVoteItem(result, kaime) {
+  var name = kaime.kakeshikiName + ' ' + (kaime.houshikiName || '');
+  var kaisaibi = formatKaisaiBi(result.kaisaiBi);
+  var title = kaime.raceNo
+    ? (kaisaibi + ' ' + result.joName + ' ' + kaime.raceNo + 'R')
+    : (kaisaibi + ' ' + result.joName);
+  var amount = addComma(kaime.betCount * kaime.unitPrice);
+  return '' +
+    '<div class="voteItem">' +
+      '<div class="voteItemTop">' +
+        '<div><span class="voteName">' + esc(name.trim()) + '</span>' +
+          '<span class="voteTitle">' + esc(title) + '</span></div>' +
+        '<div class="voteItemAmount"><span>' + kaime.betCount + '通り</span><span>' + amount + '円</span></div>' +
+      '</div>' +
+      '<div class="voteItemDivider"></div>' +
+      '<div class="voteChips">' + buildKaimeChips(kaime.kaime) + '</div>' +
+    '</div>';
+}
+
+function buildVoteSection(label, isError, list) {
+  var items = list.reduce(function (acc, r) {
+    return acc.concat(r.kaime.map(function (k) { return buildVoteItem(r, k); }));
+  }, []).join('\n');
+  var alertIcon = isError ? '<span class="alertIcon">⚠️</span>' : '';
+  var headerClass = isError ? 'voteHeader error' : 'voteHeader';
+  return '' +
+    '<details class="voteSection"><summary>' +
+      '<div class="' + headerClass + '">' + alertIcon +
+        '<span class="voteHeaderLabel">' + esc(label) + '</span>' +
+        '<span class="arrow">▾</span></div>' +
+    '</summary><div class="voteItems">' + items + '</div></details>';
+}
+
+function raceTitleBlock() {
+  var lastKaisai = DATA.lastRace.kaisaiBi;
+  var dateTitle = formatApplyDate(DATA.applicationDate) ||
+    (lastKaisai.length === 8 ? lastKaisai.slice(0, 4) + '年' + lastKaisai.slice(4, 6) + '月' + lastKaisai.slice(6, 8) + '日' : '');
+  var joName = (DATA.successList[0] || DATA.failureList[0] || {}).joName || '';
+  return '<div class="raceTitleMain">他のレースを探す</div>' +
+    '<div class="raceTitleSub"><span>' + esc(dateTitle) + '</span><span>' + esc(joName) + '</span></div>';
+}
+
+function recommendCards() {
+  var races = (DATA.racesAtSameVenue.length ? DATA.racesAtSameVenue : DATA.upcomingRacesAtVenue)
+    .filter(function (r) { return r.raceNo > 0 && r.joCode && r.kaisaibi; });
+  if (!races.length) return '';
+  var color = cfg().topColor;
+  var cards = races.map(function (r) {
+    var dl = DL_BASE + '&screenId=' + cfg().voteScreenId +
+      '&kaisaiBi=' + r.kaisaibi + '&joCd=' + r.joCode + '&raceNo=' + r.raceNo + '&vote=' + DATA.lastRace.vote;
+    return '<a class="rcard" href="' + dl + '" style="border-color:' + color + ';">' +
+      '<span class="rno" style="color:' + color + ';">' + r.raceNo + 'R</span>' +
+      '<span class="rjo" style="color:' + color + ';">' + esc(r.joName) + '</span>' +
+      '<span class="rstatus">' + esc(r.status) + '</span></a>';
+  }).join('');
+  return '<div class="rlist">' + cards + '</div>';
+}
+
+function obtn(label, href, color) {
+  return '<a class="obtn" href="' + href + '" style="border-color:' + color + ';color:' + color + ';">' + esc(label) + '</a>';
+}
+
+function buildNoRace(description, label, labelColor, href) {
+  var c = cfg();
+  return '' +
+    '<div class="recommendNoRace">' +
+      '<div class="raceTitleWrap pad12l">' + raceTitleBlock() + '</div>' +
+      '<div class="noRaceBox"><p class="noRaceDesc">' + esc(description) + '</p>' +
+        '<a class="wideBtn" href="' + href + '" style="border-color:' + labelColor + ';color:' + labelColor + ';">' + esc(label) + '</a></div>' +
+      '<div class="btnRow topRow">' +
+        obtn(c.topButtonText, topDeeplink(), c.topColor) +
+        obtn('ホームへ', homeDeeplink(), '#e7750c') +
+      '</div>' +
+    '</div>';
+}
+
+function buildRecommend() {
+  var c = cfg();
+  var homeBtn = obtn('ホームへ', homeDeeplink(), '#e7750c');
+  if (DATA.racesAtSameVenue.length) {
+    var label = DATA.isShowVoteCurrentRaceBtn ? '同じレースで投票' : c.topButtonText;
+    var href = DATA.isShowVoteCurrentRaceBtn ? voteDeeplink() : topDeeplink();
+    return '<div class="recommendPad"><div class="btnRow">' + obtn(label, href, c.topColor) + homeBtn + '</div>' +
+      '<div class="raceTitleWrap">' + raceTitleBlock() + '</div>' + recommendCards() + '</div>';
+  }
+  if (DATA.upcomingRacesAtVenue.length) {
+    return '<div class="recommendPad"><div class="btnRow">' + obtn(c.topButtonText, topDeeplink(), c.topColor) + homeBtn + '</div>' +
+      '<div class="raceTitleWrap">' + raceTitleBlock() + '</div>' + recommendCards() + '</div>';
+  }
+  if (DATA.hasSecondChoice) {
+    return buildNoRace(c.emptySecond, c.secondText, c.secondColor, secondChoiceDeeplink());
+  }
+  if (DATA.hasThirdChoice) {
+    return buildNoRace(c.emptyThird, c.thirdText, c.thirdColor, thirdChoiceDeeplink());
+  }
+  return '<div class="recommendPad"><div class="btnRow">' + obtn(c.topButtonText, topDeeplink(), c.topColor) + homeBtn + '</div></div>';
+}
+
+function buildTokushoho() {
+  return '' +
+    '<div class="tokushoho">' +
+      '<div class="tokuLine"><span class="mark">※</span><span>お申込みになった投票券は、' + esc(cfg().sponsor) +
+        'が発売する投票券の全発売金と合算された時点で、売買契約が成立します。</span></div>' +
+      '<div class="tokuLine"><span class="mark">※</span><span>投票券は、当サービスの規約に従って取扱いたします。</span></div>' +
+      '<div class="tokuLink"><button type="button" data-law="1">特定商取引法に基づく表示</button></div>' +
+    '</div>';
+}
+
+function render() {
+  var msg = errorMessage();
+  var header = msg == null ? buildSuccessHeader() : buildErrorHeader(msg);
+
+  var failureHtml = DATA.failureList.length
+    ? buildVoteSection(DATA.info.failureKaimeNum + '件受付できませんでした', true, DATA.failureList) : '';
+  var showSuccess = DATA.info.errorMsg.indexOf('規定の購入限度額（99,990,000円）を超えています。') < 0 && DATA.successList.length;
+  var successHtml = showSuccess ? buildVoteSection('投票した買い目を確認', false, DATA.successList) : '';
+
+  var receiptHtml = (DATA.successList.length || DATA.failureList.length)
+    ? '<div class="receiptWrap"><a class="receipt" href="' + receiptUrl() + '">投票照会へ<span class="receiptArrow">&rsaquo;</span></a></div>' : '';
+
+  document.getElementById('app').innerHTML =
+    '<div class="header">' + header + '</div>' +
+    failureHtml + '<div class="gap24"></div>' + successHtml + receiptHtml +
+    buildRecommend() + '<div class="gap24"></div>' + buildTokushoho();
+
+  // 特定商取引法ボタンに JS bridge を接続
+  var lawBtn = document.querySelector('.tokuLink button[data-law]');
+  if (lawBtn) lawBtn.addEventListener('click', function () { showModal(lawUrl()); });
+}
+
+/* URL query でレース情報 / category を上書き（browser preview 用） */
+function applyQueryOverrides() {
+  var q = new URLSearchParams(window.location.search);
+  var cat = q.get('category');
+  if (cat && CATEGORY_CONFIG[cat]) DATA.category = cat;
+  ['kaisaiBi', 'joCd', 'raceNo', 'vote'].forEach(function (k) {
+    var v = q.get(k);
+    if (v) DATA.lastRace[k] = v;
+  });
+}
+
+/* 受け取った payload に既定値を補完（部分データでも壊れないように） */
+function normalizeData(d) {
+  d = d || {};
+  d.category = d.category || DATA.category || 'keiba';
+  d.isOpCoin = d.isOpCoin === true;
+  d.applicationDate = d.applicationDate || '';
+  d.info = d.info || {};
+  d.info.successNum = d.info.successNum || 0;
+  d.info.failureKaimeNum = d.info.failureKaimeNum || 0;
+  d.info.voteLimit = d.info.voteLimit || 0;
+  d.info.buyLimit = d.info.buyLimit || 0;
+  d.info.errorMsg = d.info.errorMsg || '';
+  d.successList = d.successList || [];
+  d.failureList = d.failureList || [];
+  d.isShowVoteCurrentRaceBtn = d.isShowVoteCurrentRaceBtn === true;
+  d.racesAtSameVenue = d.racesAtSameVenue || [];
+  d.upcomingRacesAtVenue = d.upcomingRacesAtVenue || [];
+  d.hasSecondChoice = d.hasSecondChoice === true;
+  d.hasThirdChoice = d.hasThirdChoice === true;
+  d.lastRace = d.lastRace || { kaisaiBi: '', joCd: '', raceNo: '', vote: '1' };
+  return d;
+}
+
+/* Realtime: native app が現在データを渡す入口。
+   payload は JSON 文字列 / オブジェクトどちらでも可。 */
+window.opRenderData = function (payload) {
+  try {
+    var d = (typeof payload === 'string') ? JSON.parse(payload) : payload;
+    if (d) DATA = normalizeData(d);
+  } catch (e) { /* パース失敗時は直前の DATA のまま */ }
+  render();
+};
+
+/* 起動: app 内なら getVoteData で初回データ取得（以降は native が push）。
+   app 外（通常ブラウザ）は DATA サンプル + query override で描画。
+   category はまずパスから判定（keiba/keirin/autorace 各フォルダで正しい色に）。 */
+function boot() {
+  var pathCat = detectCategoryFromPath();
+  if (pathCat) DATA.category = pathCat;
+
+  var bridge = window.flutter_inappwebview;
+  if (bridge && bridge.callHandler) {
+    bridge.callHandler('getVoteData')
+      .then(function (payload) {
+        if (payload) window.opRenderData(payload);
+        else render();
+      })
+      .catch(function () { render(); });
+  } else {
+    applyQueryOverrides();
+    render();
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
